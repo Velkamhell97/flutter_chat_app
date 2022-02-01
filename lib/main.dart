@@ -19,9 +19,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        fontFamily: 'ProximaNova'
+        fontFamily: 'ProximaNova',
+        appBarTheme: const AppBarTheme(
+          foregroundColor: Colors.black,
+        ),
       ),
-      initialRoute: '/login',
+      initialRoute: '/chat',
       routes: {
         '/auth'     : (_) => const AuthPage(),
         
