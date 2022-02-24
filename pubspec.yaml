@@ -38,6 +38,11 @@ dependencies:
   socket_io_client: ^2.0.0-beta.4-nullsafety.0
   google_fonts: ^2.2.0
   pull_to_refresh: ^2.0.0
+  http: ^0.13.4
+  dio: ^4.0.4
+  email_validator: ^2.0.1
+  image_picker: ^0.8.4+9
+  flutter_secure_storage: ^5.0.2
   
 
 dev_dependencies:

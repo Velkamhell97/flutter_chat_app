@@ -36,4 +36,10 @@ class TextStyles {
     fontSize: 14,
     color: Colors.black45
   );
+
+  static const formError = TextStyle(
+    fontSize: 14,
+    color: Colors.redAccent,
+    
+  );
 }

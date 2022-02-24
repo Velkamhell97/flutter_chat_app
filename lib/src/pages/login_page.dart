@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/providers/login_form_provider.dart';
 import 'package:chat_app/styles/text_styles.dart';
 import 'package:chat_app/widgets/login_form.dart';
-import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,8 +15,8 @@ class LoginPage extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: const Color(0xffF2F2F2),
-        //-Solucion 1 Video
+        // backgroundColor: const Color(0xffF2F2F2),
+        //-Solucion 1 Video: No funciona si se coloca en landscape (se tendria que pensar en un diseño de dos columnas)
         body: SingleChildScrollView(
           // reverse: true,
           physics: const BouncingScrollPhysics(
@@ -22,26 +25,29 @@ class LoginPage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.only(top: 50, bottom: 20),
             height: size.height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const _Header(),
-                // Text('Post Header'),
-                Center(
-                  child: SizedBox(
+            child: ChangeNotifierProvider(
+              create: (_) => LoginFormProvider(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const _Header(),
+                  // Text('Post Header'),
+                  Center(
+                    child: SizedBox(
                       width: size.width * 0.9,
                       child: const LoginForm()
                     ),
-                ),
-                const _PreFooter(),
-                const Text('Terminos y condiciones de uso', textAlign: TextAlign.center, style: TextStyles.body3Grey,)
-              ],
+                  ),
+                  const _PreFooter(),
+                  const Text('Terminos y condiciones de uso', textAlign: TextAlign.center, style: TextStyles.body3Grey,)
+                ],
+              ),
             ),
           ),
         )
-
-        //-Solucion 2: Post Facebook
+    
+        // -Solucion 2: Post Facebook: si funciona con landscape
         // body: CustomScrollView(
         //   physics: const BouncingScrollPhysics(
         //     //-Cuando se usa el parent se combinan los efectos, el del alwaysScroll es que pueda hacer scroll asi no haya contenido
@@ -66,7 +72,7 @@ class LoginPage extends StatelessWidget {
         //         ),
         //       ),
         //     ),
-    
+        //
         //     //-------------------------------------
         //     // FORM & PRE-FOOTER & FOOTER
         //     //-------------------------------------
@@ -115,12 +121,24 @@ class _PreFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final form = Provider.of<LoginFormProvider>(context);
+
     return Column(
       children: [
         const Text('¿No tienes cuenta?', style: TextStyles.body2grey),
         TextButton(
-          onPressed: () => Navigator.of(context).pushReplacementNamed('/register'), 
+          onPressed: form.loading ? null : () {
+            form.error = null;
+            Navigator.of(context).pushNamed('/register', arguments: form.body['email']);
+          }, 
           child: const Text('Crea una ahora', style: TextStyles.button)
+        ),
+        TextButton(
+          onPressed: form.loading ? null : () {
+            form.error = null;
+            Navigator.of(context).pushNamed('/reset-password', arguments: form.body['email']);
+          } , 
+          child: const Text('Olvide mi contraseña', style: TextStyles.button)
         )
       ],
     );

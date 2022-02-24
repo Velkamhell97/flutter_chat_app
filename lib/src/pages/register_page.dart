@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/providers/register_form_provider.dart';
 import 'package:chat_app/styles/text_styles.dart';
 import 'package:chat_app/widgets/register_form.dart';
-import 'package:flutter/material.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -8,11 +11,12 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final loginEmail = ModalRoute.of(context)!.settings.arguments as String;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: const Color(0xffF2F2F2),
+        // backgroundColor: const Color(0xffF2F2F2),
         //-Solucion 1 Video
         body: SingleChildScrollView(
           // reverse: true,
@@ -22,21 +26,24 @@ class RegisterPage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.only(top: 50, bottom: 20),
             height: size.height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const _Header(),
-                // Text('Post Header'),
-                Center(
-                  child: SizedBox(
+            child: ChangeNotifierProvider(
+              create: (_) => RegisterFormProvider(loginEmail),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const _Header(),
+                  // Text('Post Header'),
+                  Center(
+                    child: SizedBox(
                       width: size.width * 0.9,
                       child: const RegisterForm()
                     ),
-                ),
-                const _PreFooter(),
-                const Text('Terminos y condiciones de uso', textAlign: TextAlign.center, style: TextStyles.body3Grey,)
-              ],
+                  ),
+                  const _PreFooter(),
+                  const Text('Terminos y condiciones de uso', textAlign: TextAlign.center, style: TextStyles.body3Grey,)
+                ],
+              ),
             ),
           ),
         )
@@ -62,7 +69,7 @@ class RegisterPage extends StatelessWidget {
         //         ),
         //       ),
         //     ),
-    
+        //
         //     //-------------------------------------
         //     // FORM & PRE-FOOTER & FOOTER
         //     //-------------------------------------
@@ -111,11 +118,13 @@ class _PreFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final form = Provider.of<RegisterFormProvider>(context);
+
     return Column(
       children: [
         const Text('¿Ya tienes una cuenta?', style: TextStyles.body2grey),
         TextButton(
-          onPressed: () => Navigator.of(context).pushReplacementNamed('/login'), 
+          onPressed: form.loading ? null : () => Navigator.of(context).pop(),
           child: const Text('Ingresa ahora', style: TextStyles.button)
         )
       ],

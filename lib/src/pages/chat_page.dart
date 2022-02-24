@@ -34,12 +34,28 @@ class _ChatPageState extends State<ChatPage> {
     _listKey.currentState!.insertItem(0);
   }
 
+  final _inputFocus = FocusNode();
+  bool _hasFocus = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _inputFocus.addListener(() {
+      //-Al parecer abrir y cerrar el teclado de por si causa dos rebuild
+      setState(() => _hasFocus = _inputFocus.hasFocus);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData mq = MediaQuery.of(context);
+    final bottomInset = mq.viewInsets.bottom + mq.padding.bottom;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: const Color(0xffF2F2F2),
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,8 +63,8 @@ class _ChatPageState extends State<ChatPage> {
               //---------------------------------
               // Header
               //---------------------------------
-              const _Header(), 
-    
+              const _Header(),
+
               //---------------------------------
               // Messages
               //---------------------------------
@@ -61,14 +77,12 @@ class _ChatPageState extends State<ChatPage> {
                   // itemExtent: 40 + _messagePadding, //-No se puede poner fijo porque puede variar el height
                   reverse: true, //-Empezamos en el ultimo elemento y scroleamos hacia arriba
                   itemBuilder: (_, index, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SizeTransition(
-                        sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: _messagePadding),
-                          child: ChatMessage(message: _messages[index]),
-                        ),
+                    return SizeTransition(
+                      sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                      axisAlignment: -1.0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: _messagePadding),
+                        child: ChatMessage(message: _messages[index]),
                       ),
                     );
                   },
@@ -77,11 +91,17 @@ class _ChatPageState extends State<ChatPage> {
 
               //Opcion 1, la opcion 2 es el boxShadows y la 3 el cambio del fondo de la lista
               const Divider(thickness: 0.9, height: 0.5),
-    
+
               //---------------------------------
               // TextField
               //---------------------------------
-              _ChatTextField(onSubmit: _addMessage)
+              _ChatTextField(onSubmit: _addMessage, inputFocus: _inputFocus),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 20),
+                curve: Curves.easeOutQuad,
+                //-Por alguna razon funciona solo sin la necesidad de la condicion del _inputFocus
+                padding: EdgeInsets.only(bottom: bottomInset),
+              )
             ],
           ),
         ),
@@ -115,8 +135,10 @@ class _Header extends StatelessWidget {
 }
 
 class _ChatTextField extends StatefulWidget {
-  final  ValueChanged<String> onSubmit;
-  const _ChatTextField({Key? key, required this.onSubmit}) : super(key: key);
+  final ValueChanged<String> onSubmit;
+  final FocusNode inputFocus;
+
+  const _ChatTextField({Key? key, required this.onSubmit, required this.inputFocus}) : super(key: key);
 
   @override
   State<_ChatTextField> createState() => __ChatTextFieldState();
@@ -128,35 +150,30 @@ class __ChatTextFieldState extends State<_ChatTextField> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      // decoration: const BoxDecoration(
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.grey,
-      //       blurRadius: 25.0,
-      //       offset: Offset(0.0, 9.0)
-      //     )
-      //   ]
-      // ),
       child: TextField(
         maxLines: 4,
         minLines: 1,
         autocorrect: false,
+        textCapitalization: TextCapitalization.sentences,
         controller: _textController,
+        focusNode: widget.inputFocus,
         onChanged: (_) => setState(() {}), //-Solo para actualizar el valor del textController
         onSubmitted: widget.onSubmit,
         decoration: InputDecoration(
           border: InputBorder.none,
           filled: true,
-          fillColor: Colors.white,
+          // fillColor: Colors.white, //-Tapa el color del splash
           suffixIcon: AnimatedSwitcher(
             duration: kThemeAnimationDuration,
-            child: _textController.text.isEmpty ? const SizedBox() :  IconButton(
+            child: _textController.text.isEmpty
+            ? const SizedBox()
+            : IconButton(
               splashRadius: 24,
               splashColor: Colors.blue.shade100,
               onPressed: () {
                 widget.onSubmit(_textController.text);
                 _textController.clear();
-                setState(() {});
+                setState(() {}); //-Para el AnimatedSwitch
               },
               icon: const Icon(Icons.send),
             ),

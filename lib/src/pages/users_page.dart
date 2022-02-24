@@ -1,5 +1,7 @@
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/services/auth_services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart' hide RefreshIndicator;
 
 class UsersPage extends StatefulWidget {
@@ -21,6 +23,8 @@ class _UsersPageState extends State<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthService>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xffF2F2F2),
       appBar: AppBar(
@@ -30,7 +34,10 @@ class _UsersPageState extends State<UsersPage> {
         leading: const Icon(Icons.check_circle, color: Colors.blue),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () async {
+              Navigator.of(context).pushReplacementNamed('/login');
+              auth.signout();
+            } ,
             icon: const Icon(Icons.exit_to_app),
           ),
         ],
@@ -48,8 +55,9 @@ class _UsersPageState extends State<UsersPage> {
           physics: const BouncingScrollPhysics(),
           separatorBuilder: (context, index) => const Divider(thickness: 1), 
           itemCount: 10,
-          itemBuilder: (_, index) {
-            return _UserTile(user: _users[index]);
+          itemBuilder: (context, index) {
+            return Text('Hola');
+            // return _UserTile(user: _users[index]);
           }, 
         ),
       ),

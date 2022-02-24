@@ -16,10 +16,10 @@ class ChatMessage extends StatelessWidget {
       alignment: myMessage ? Alignment.centerRight : Alignment.centerLeft,
 
       // child: CustomPaint(
-      //   painter: uid == 'uid1' ? _BubbleTailToPainter() : _BubbleTailFromPainter(),
+      //   painter: myMessage ? _BubbleTailToPainter() : _BubbleTailFromPainter(),
       //   child: Padding(
       //     padding: const EdgeInsets.all(8.0),
-      //     child: Text(text),
+      //     child: Text(message.text),
       //   ),
       // ),
 
