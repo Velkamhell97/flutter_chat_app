@@ -39,14 +39,18 @@ class AudioProvider extends ChangeNotifier {
   //-----------STREAMS-----------------//
   StreamSubscription? _recordStream;
   void _disposeRecordStream() {
-    _recordStream!.cancel();
-    _recordStream = null;
+    if(_recordStream != null){
+      _recordStream!.cancel();
+      _recordStream = null;
+    }
   }
 
   StreamSubscription? _playerStream;
   void _disposePlayerStream() {
-    _playerStream!.cancel();
-    _playerStream = null;
+    if(_playerStream != null){
+      _playerStream!.cancel();
+      _playerStream = null;
+    }
   }
 
   //---------------TIMES---------------//

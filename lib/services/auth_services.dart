@@ -61,10 +61,12 @@ class AuthServices {
 
       await _storage.write(key: 'token', value: token);
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
+      print(e);
       if(e.response != null){
         return ErrorResponse.fromJson(e.response!.data);
       }
     } catch (e) {
+      print(e);
       return ErrorResponse(
         error: e.toString(), 
         details: Details(code: 500, msg: e.toString(), name: "UNKNOWN ERROR", extra: null)

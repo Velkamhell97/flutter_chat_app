@@ -277,18 +277,22 @@ class _ChatActions extends StatelessWidget {
 
     input.message.time = DateFormat("hh:mm a").format(DateTime.now());
 
-    chat.addMessage(input.message.copyWith());
-    input.listKey.currentState!.insertItem(0);
+    socket.emitWithAck('message-id', input.message, ack: (id) async {
+      input.message.id = id;
 
-    if(input.message.image != null || input.message.audio != null){
-      final tempUrl = await file.uploadFile(input.message.image ?? input.message.audio!);
-      input.message.tempUrl = tempUrl;
-    }
+      chat.addMessage(input.message.copyWith());
+      input.listKey.currentState!.insertItem(0);
 
-    socket.emit('chat-message', input.message.toJson());
+      if(input.message.image != null || input.message.audio != null){
+        final tempUrl = await file.uploadFile(input.message.image ?? input.message.audio!);
+        input.message.tempUrl = tempUrl;
+      }
 
-    input.textController.clear();
-    input.clearMessage();
+      socket.emit('chat-message', input.message);
+
+      input.textController.clear();
+      input.clearMessage();
+    });
   }
 
   @override
