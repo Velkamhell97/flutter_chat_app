@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chat_app/providers/reset_form_provider.dart';
-import 'package:chat_app/styles/text_styles.dart';
-import 'package:chat_app/widgets/reset_password_form.dart';
+import '../providers/providers.dart';
+import '../styles/styles.dart';
+import '../widgets/widgets.dart';
 
 class ResetPasswordPage extends StatelessWidget {
   const ResetPasswordPage({Key? key}) : super(key: key);

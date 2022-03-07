@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:chat_app/services/file_servides.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart' hide RefreshIndicator;
 
-import 'package:chat_app/services/services.dart';
-import 'package:chat_app/models/models.dart';
+import '../global/globals.dart';
+import '../services/services.dart';
+import '../models/models.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({Key? key}) : super(key: key);
@@ -16,8 +16,8 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   late final AuthServices auth;
-  late final SocketServices socket;
   late final ChatServices chat;
+  late final SocketServices socket;
 
   //-Se necesita un staful para craer una variable final y con el constructor del widget como const
   final _refreshController = RefreshController(initialRefresh: false);
@@ -43,6 +43,7 @@ class _UsersPageState extends State<UsersPage> {
     auth = Provider.of<AuthServices>(context, listen: false);
     chat = Provider.of<ChatServices>(context, listen: false);
     socket = Provider.of<SocketServices>(context, listen: false);
+
     final file = Provider.of<FileServices>(context, listen: false);
 
     //Socket.connect(AuthServices.token!, onError: (e) => _logout(error: e));
@@ -59,24 +60,25 @@ class _UsersPageState extends State<UsersPage> {
         await Future.delayed(const Duration(milliseconds: 200));
         Notifications.showStoragePermissionDialog(context);
       } else {
-        socket.socket.on('chat-message', (payload) async {
-          print('user-1');
-          final json = jsonDecode(payload);
-          final message = Message.fromJson(json['message']);
+        socket.socket.on('chat-home-message', (payload) async {
+          if(chat.receiverUser == null){
+            final json = jsonDecode(payload);
+            final message = Message.fromJson(json['message']);
 
-          print('user-2');
-          if(message.image != null || message.audio != null){
-            await file.downloadFile(message.tempUrl!, message.image ?? message.audio!);
-            file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
-          } 
+            if(message.image != null || message.audio != null){
+              await file.downloadFile(message.tempUrl!, message.image ?? message.audio!);
+              file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
+            } 
 
-          print('user-3');
-          chat.uploadUnread(message.from).then((value) {
-            if(value != null){
-              auth.user!.unread[message.from] = value;
-              chat.updateStream();
-            }
-          });
+            chat.uploadUnread(message.from).then((value) {
+              if(value != null){
+                auth.updateUnread(message.from, value);
+              } else {
+                final error = chat.error!.details.msg;
+                Notifications.showSnackBar(error);
+              }
+            });
+          }
         });
       }
     });
@@ -114,7 +116,8 @@ class _UsersPageState extends State<UsersPage> {
           }
 
           if (snapshot.hasError) {
-            return const Text('Error');
+            final error = snapshot.error as ErrorResponse;
+            return Text('Error while loading the users: ${error.details.msg}');
           }
 
           final users = snapshot.data!;
@@ -142,6 +145,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 }
 
+
 class _UserTile extends StatelessWidget {
   final User user;
 
@@ -149,8 +153,7 @@ class _UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthServices>(context, listen: false);
-    // final chat = Provider.of<ChatServices>(context);
+    final auth = Provider.of<AuthServices>(context);
     final Color color = user.online ? Colors.green.shade300 : Colors.red.shade300;
 
     final unreadMsg = auth.user?.unread[user.uid] ?? 0;
@@ -167,35 +170,14 @@ class _UserTile extends StatelessWidget {
           subtitle: Text(user.email),
           onTap: () {
             final chat = Provider.of<ChatServices>(context, listen: false);
-            final socket = Provider.of<SocketServices>(context, listen: false).socket;
 
             chat.receiverUser = user;
             chat.chatMessages = null;
-            socket.off('chat-message');
 
-            Navigator.of(context).pushNamed('/chat').then((value) {
-              final file = Provider.of<FileServices>(context, listen: false);
-
-              socket.on('chat-message', (payload) async {
-                final json = jsonDecode(payload);
-                final message = Message.fromJson(json['message']);
-
-                if(message.image != null || message.audio != null){
-                  await file.downloadFile(message.tempUrl!, message.image ?? message.audio!);
-                  file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
-                } 
-
-                chat.uploadUnread(message.from).then((value) {
-                  if(value != null){
-                    auth.user!.unread[message.from] = value;
-                    chat.updateStream();
-                  }
-                });
-              });
-            });
+            Navigator.of(context).pushNamed('/chat');
           },
         ),
-        if(unreadMsg != null && unreadMsg != 0)
+        if(unreadMsg != 0)
           Positioned(
             right: 10,
             top: 0,

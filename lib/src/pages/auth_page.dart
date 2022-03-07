@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chat_app/services/services.dart';
-import 'package:chat_app/src/pages/pages.dart';
+import '../pages/pages.dart';
+import '../services/services.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({Key? key}) : super(key: key);

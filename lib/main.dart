@@ -1,11 +1,10 @@
-import 'package:chat_app/services/file_servides.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chat_app/global/globals.dart';
-import 'package:chat_app/services/services.dart';
-import 'package:chat_app/src/pages/pages.dart';
+import 'src/global/globals.dart';
+import 'src/services/services.dart';
+import 'src/pages/pages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +34,7 @@ class AppState extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => AuthServices()),
+        ChangeNotifierProvider(create: (_) => AuthServices()),
         Provider(create: (_) => FileServices()),
         Provider(create: (_) => SocketServices(null)),
 
@@ -62,6 +61,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
+      scaffoldMessengerKey: Notifications.messengerKey,
 
       theme: ThemeData(
         fontFamily: 'ProximaNova',
