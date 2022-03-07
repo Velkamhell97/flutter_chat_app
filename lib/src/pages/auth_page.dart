@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chat_app/services/auth_services.dart';
+import 'package:chat_app/services/services.dart';
 import 'package:chat_app/src/pages/pages.dart';
 
 class AuthPage extends StatelessWidget {
@@ -9,12 +9,13 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authServices = Provider.of<AuthService>(context, listen: false);
+    final user = Provider.of<AuthServices>(context, listen: false);
+    final socket = Provider.of<SocketServices>(context, listen: false);
 
     return Scaffold(
       body: FutureBuilder(
         //-El entrar a la app checka si esta logeado y actualiza en usuario en caso que sea asi (el usuario no es persistente)
-        future: authServices.isLogged(),
+        future: user.isLogged(),
         builder: (_, AsyncSnapshot<bool> snapshot) {
           if(!snapshot.hasData){
             return const Center(child: CircularProgressIndicator());
@@ -22,6 +23,7 @@ class AuthPage extends StatelessWidget {
 
           if(snapshot.data == false){
             print('user invalid');
+            socket.disconnect();
 
             Future.microtask((){
               Navigator.pushReplacement(context, PageRouteBuilder(
@@ -31,6 +33,7 @@ class AuthPage extends StatelessWidget {
             });
           } else {
             print('user valid');
+            // socket.connect(user.token!);
 
             Future.microtask((){
               Navigator.pushReplacement(context, PageRouteBuilder(

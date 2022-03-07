@@ -11,14 +11,14 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthService>(context, listen: false);
+    final auth = Provider.of<AuthServices>(context, listen: false);
     final form = Provider.of<LoginFormProvider>(context);
 
     final loading = form.loading;
     final show    = form.show;
     final body    = form.body;
     final error   = form.error;
-
+    
     return Form(
       key: form.key,
       child: Column(

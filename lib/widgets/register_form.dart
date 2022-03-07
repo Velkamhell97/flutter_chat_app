@@ -15,7 +15,7 @@ class RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthService>(context, listen: false);
+    final auth = Provider.of<AuthServices>(context, listen: false);
     final form = Provider.of<RegisterFormProvider>(context);
     
     final loading = form.loading;
@@ -82,33 +82,33 @@ class RegisterForm extends StatelessWidget {
           //-------------------------------
           // Role Field
           //-------------------------------
-          DropdownButtonFormField<String>(
-            decoration: InputStyles.authInputStyle.copyWith(
-              hintText: 'Role',
-              prefixIcon: const Icon(Icons.recent_actors_outlined)
-            ),
-            items: roles.map((rol) => DropdownMenuItem<String>(value: rol, child: Text(rol))).toList(), 
-            onTap: () => FocusScope.of(context).unfocus(),
-            onChanged: (value) => body['role'] = value!,
-            validator: (value) => (value ?? '').isNotEmpty ? null : 'The role is required',
-          ),
+          // DropdownButtonFormField<String>(
+          //   decoration: InputStyles.authInputStyle.copyWith(
+          //     hintText: 'Role',
+          //     prefixIcon: const Icon(Icons.recent_actors_outlined)
+          //   ),
+          //   items: roles.map((rol) => DropdownMenuItem<String>(value: rol, child: Text(rol))).toList(), 
+          //   onTap: () => FocusScope.of(context).unfocus(),
+          //   onChanged: (value) => body['role'] = value!,
+          //   validator: (value) => (value ?? '').isNotEmpty ? null : 'The role is required',
+          // ),
 
           const SizedBox(height: 20.0),
           
           //-------------------------------
           // Avatar Field
           //-------------------------------
-          InkWell( //-Algunas veces no necesita el material
-            borderRadius: BorderRadius.circular(10.0),
-            onTap: () async {
-              final XFile? image = await  ImagePicker().pickImage(source: ImageSource.gallery);
+          // InkWell( //-Algunas veces no necesita el material
+          //   borderRadius: BorderRadius.circular(10.0),
+          //   onTap: () async {
+          //     final XFile? image = await  ImagePicker().pickImage(source: ImageSource.gallery);
 
-              if(image != null){
-                form.image = image.path;
-              }
-            },
-            child: _UploadBox(image: form.image) 
-          ),
+          //     if(image != null){
+          //       form.image = image.path;
+          //     }
+          //   },
+          //   child: _UploadBox(image: form.image) 
+          // ),
 
           const SizedBox(height: 20.0),
 

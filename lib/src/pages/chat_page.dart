@@ -1,6 +1,34 @@
-import 'package:chat_app/models/message.dart';
-import 'package:chat_app/widgets/chat_message.dart';
+import 'package:chat_app/services/file_servides.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:ui';
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/providers/providers.dart';
+import 'package:chat_app/models/models.dart';
+import 'package:chat_app/global/globals.dart';
+import 'package:chat_app/services/services.dart';
+import 'package:chat_app/widgets/chat_message.dart';
+
+class ChatState extends StatelessWidget {
+  const ChatState({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final fromUser = Provider.of<AuthServices>(context, listen: false).user!;
+    final toUser = Provider.of<ChatServices>(context, listen: false).receiverUser!;
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ChatProvider(fromUser.uid, toUser.uid)),
+        ChangeNotifierProvider(create: (context) => AudioProvider())
+      ],
+      child: const ChatPage(),
+    );
+  }
+}
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -10,98 +38,150 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final List<Message> _messages = [
-    // Message(uid: '1', text: 'Hola Mundo mi nombre es luis daniel valencia y soy estilo rcn si me entiende'),
-    // Message(uid: '2', text: 'Respuesta Mundo'),
-    // Message(uid: '1', text: 'Hola Mundo'),
-    // Message(uid: '2', text: 'Respuesta Mundo'),
-    // Message(uid: '1', text: 'Hola Mundo'),
-    // Message(uid: '2', text: 'Respuesta Mundo'),
-    // Message(uid: '1', text: 'Hola Mundo'),
-    // Message(uid: '2', text: 'Respuesta Mundo'),
-    // Message(uid: '1', text: 'Hola Mundo'),
-    // Message(uid: '2', text: 'Respuesta Mundo'),
-    // Message(uid: '1', text: 'Hola Mundo'),
-    // Message(uid: '2', text: 'Respuesta Mundo'),
-  ];
-
-  static const _messagePadding = 10.0;
-
-  final _listKey = GlobalKey<AnimatedListState>();
-
-  void _addMessage(String text) {
-    _messages.insert(0, Message(uid: '1', text: text));
-    _listKey.currentState!.insertItem(0);
-  }
-
-  final _inputFocus = FocusNode();
-  bool _hasFocus = false;
+  late final ChatProvider input;
+  late final AuthServices auth;
 
   @override
   void initState() {
     super.initState();
-    _inputFocus.addListener(() {
-      //-Al parecer abrir y cerrar el teclado de por si causa dos rebuild
-      setState(() => _hasFocus = _inputFocus.hasFocus);
+
+    input = Provider.of<ChatProvider>(context, listen: false);
+    auth = Provider.of<AuthServices>(context, listen: false);
+    final chat = Provider.of<ChatServices>(context, listen: false);
+    final file = Provider.of<FileServices>(context, listen: false);
+    final socket = Provider.of<SocketServices>(context, listen: false).socket;
+
+    chat.getChatMessages().then((_) {
+      final unread = chat.chatMessages!.where((message) {
+        return message.from != auth.user!.uid && !message.read;
+      }).toList();
+
+      if(unread.isNotEmpty){
+        chat.uploadUnread(unread.first.from, reset: true).then((value) {
+          auth.user!.unread[chat.receiverUser!.uid] = value!;
+          chat.updateStream();
+        });
+      }
+
+      for (var i = 0; i < unread.length; i++) {
+        chat.chatMessages![i].read = true;
+        socket.emit('message-read', unread[i].id);
+      }
     });
-  }
+
+    socket.on('chat-message', (payload) async {
+      final json = jsonDecode(payload);
+      final message = Message.fromJson(json['message']);
+
+      if(message.image != null || message.audio != null){
+        await file.downloadFile(message.tempUrl!, message.image ?? message.audio!);
+        file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
+      } 
+
+      message.read = true;
+
+      chat.addMessage(message);
+      input.listKey.currentState!.insertItem(0);
+
+      socket.emit('message-read', message.id);
+    });
+  } 
+
+  static const _messagePadding = 10.0;
 
   @override
   Widget build(BuildContext context) {
     final MediaQueryData mq = MediaQuery.of(context);
     final bottomInset = mq.viewInsets.bottom + mq.padding.bottom;
 
+    final chat = Provider.of<ChatServices>(context);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: const Color(0xffF2F2F2),
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Stack(
+            // fit: StackFit.expand,
             children: [
               //---------------------------------
-              // Header
+              // Background
               //---------------------------------
-              const _Header(),
-
-              //---------------------------------
-              // Messages
-              //---------------------------------
-              Flexible(
-                child: AnimatedList(
-                  key: _listKey,
-                  initialItemCount: _messages.length,
-                  padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
-                  physics: const BouncingScrollPhysics(),
-                  // itemExtent: 40 + _messagePadding, //-No se puede poner fijo porque puede variar el height
-                  reverse: true, //-Empezamos en el ultimo elemento y scroleamos hacia arriba
-                  itemBuilder: (_, index, animation) {
-                    return SizeTransition(
-                      sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-                      axisAlignment: -1.0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: _messagePadding),
-                        child: ChatMessage(message: _messages[index]),
-                      ),
-                    );
-                  },
+              const Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/chat-bg.jpg'),
+                      fit: BoxFit.fill
+                    )
+                  ),
                 ),
               ),
 
-              //Opcion 1, la opcion 2 es el boxShadows y la 3 el cambio del fondo de la lista
-              const Divider(thickness: 0.9, height: 0.5),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  //---------------------------------
+                  // Header
+                  //---------------------------------
+                  _Header(user: chat.receiverUser!),
 
-              //---------------------------------
-              // TextField
-              //---------------------------------
-              _ChatTextField(onSubmit: _addMessage, inputFocus: _inputFocus),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 20),
-                curve: Curves.easeOutQuad,
-                //-Por alguna razon funciona solo sin la necesidad de la condicion del _inputFocus
-                padding: EdgeInsets.only(bottom: bottomInset),
-              )
+                  //---------------------------------
+                  // Messages
+                  //---------------------------------
+                  Flexible(
+                    child: Builder(
+                      builder: (context) {
+                        if(chat.chatMessages == null){
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        return AnimatedList(
+                          key: input.listKey,
+                          initialItemCount: chat.chatMessages!.length,
+                          padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                          physics: const BouncingScrollPhysics(),
+                          reverse: true, //-Empezamos en el ultimo elemento y scroleamos hacia arriba
+                          itemBuilder: (_, index, animation) {
+                            final message = chat.chatMessages![index];
+                            
+                            return SizeTransition(
+                              sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                              axisAlignment: -1.0,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: _messagePadding),
+                                child: ChatMessage(message: message, sender: message.from == auth.user!.uid ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    )
+                  ),
+
+                  //Opcion 1, la opcion 2 es el boxShadows y la 3 el cambio del fondo de la lista
+                  const Divider(thickness: 0.9, height: 0.5),
+
+                  Selector<ChatProvider, bool>(
+                  selector: (_, p1) => p1.isFocus,
+                  builder: (context, isFocus, child) {
+                    return AnimatedContainer(
+                      color: Colors.white,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.linear,
+                      child: Stack(
+                        alignment: Alignment.centerRight,
+                        children: const [
+                          _ChatTextField(),
+                          _ChatActions(),
+                        ],
+                      ),
+                      padding: isFocus ? EdgeInsets.only(bottom: bottomInset) : const EdgeInsets.only(bottom: 0),
+                    );
+                  },
+                ),
+                ],
+              ),
             ],
           ),
         ),
@@ -110,83 +190,271 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
+//-Mas manejable para transiciones en vez de un appbar
 class _Header extends StatelessWidget {
-  const _Header({Key? key}) : super(key: key);
+  final User user;
+
+  const _Header({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData mq = MediaQuery.of(context);
+
     return Material(
-      elevation: 1.0, //-Cuando la elevacion es tan bajita un divider daria un efecto muy similar
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Column(
-          children: [
-            CircleAvatar(
-              child: const Text('U'),
-              backgroundColor: Colors.blue.shade100,
-            ),
-            const SizedBox(height: 5),
-            const Text('User 1', textAlign: TextAlign.center)
-          ],
+      color: Colors.white,
+      child: InkWell(
+        onTap: () => {},
+        child: Container(
+          padding: EdgeInsets.only(top: mq.padding.top),
+          height: kToolbarHeight + mq.padding.top,
+          child: Row(
+            children: [
+              IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.arrow_back)),
+              const SizedBox(width: 5.0),
+              CircleAvatar(
+                child: Text(user.name.substring(0,2)),
+                backgroundColor: Colors.blue[100],
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(child: Text(user.name)),
+              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ChatTextField extends StatefulWidget {
-  final ValueChanged<String> onSubmit;
-  final FocusNode inputFocus;
-
-  const _ChatTextField({Key? key, required this.onSubmit, required this.inputFocus}) : super(key: key);
-
-  @override
-  State<_ChatTextField> createState() => __ChatTextFieldState();
-}
-
-class __ChatTextFieldState extends State<_ChatTextField> {
-  final _textController = TextEditingController();
+class _ChatTextField extends StatelessWidget {
+  const _ChatTextField({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final input = Provider.of<ChatProvider>(context, listen: false);
+    final record = Provider.of<AudioProvider>(context);
+
+    final recordTime = record.recordTime;
+
     return SizedBox(
       child: TextField(
         maxLines: 4,
         minLines: 1,
         autocorrect: false,
         textCapitalization: TextCapitalization.sentences,
-        controller: _textController,
-        focusNode: widget.inputFocus,
-        onChanged: (_) => setState(() {}), //-Solo para actualizar el valor del textController
-        onSubmitted: widget.onSubmit,
-        decoration: InputDecoration(
+        controller: input.textController,
+        focusNode: input.focusNode,
+        onChanged: (value) => input.message.text = value, //-Solo para actualizar el valor del textController
+        decoration:  InputDecoration(
           border: InputBorder.none,
           filled: true,
-          // fillColor: Colors.white, //-Tapa el color del splash
-          suffixIcon: AnimatedSwitcher(
-            duration: kThemeAnimationDuration,
-            child: _textController.text.isEmpty
-            ? const SizedBox()
-            : IconButton(
-              splashRadius: 24,
-              splashColor: Colors.blue.shade100,
-              onPressed: () {
-                widget.onSubmit(_textController.text);
-                _textController.clear();
-                setState(() {}); //-Para el AnimatedSwitch
-              },
-              icon: const Icon(Icons.send),
-            ),
-            transitionBuilder: (child, animation) {
-              return ScaleTransition(
-                scale: animation,
-                child: child,
-              );
-            },
-          ),
-          hintText: 'Message'
+          fillColor: Colors.white, //-Tapa el color del splash (se arregla con el material)
+          suffixIcon: const SizedBox(width: 24),
+          hintText: recordTime.isEmpty ? 'Message' : '',
+          prefixIcon: recordTime.isEmpty ? null : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(width: 10.0),
+              const Icon(Icons.circle, color: Colors.redAccent),
+              const SizedBox(width: 8.0),
+              Text(recordTime)
+            ],
+          )
         )
       ),
     );
   }
+}
+
+class _ChatActions extends StatelessWidget {
+  const _ChatActions({Key? key}) : super(key: key);
+  
+  Future<void> _sendMessage(BuildContext context) async{
+    final chat = Provider.of<ChatServices>(context, listen: false);
+    final input = Provider.of<ChatProvider>(context, listen: false);
+    final socket = Provider.of<SocketServices>(context, listen: false).socket;
+    final file = Provider.of<FileServices>(context, listen: false);
+
+    input.message.time = DateFormat("hh:mm a").format(DateTime.now());
+
+    chat.addMessage(input.message.copyWith());
+    input.listKey.currentState!.insertItem(0);
+
+    if(input.message.image != null || input.message.audio != null){
+      final tempUrl = await file.uploadFile(input.message.image ?? input.message.audio!);
+      input.message.tempUrl = tempUrl;
+    }
+
+    socket.emit('chat-message', input.message.toJson());
+
+    input.textController.clear();
+    input.clearMessage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final input = Provider.of<ChatProvider>(context);
+
+    return AnimatedSwitcher(
+      duration: kThemeAnimationDuration,
+      child: !input.showSend
+      ? _MediaActions(sendFile: () => _sendMessage(context))
+      : Material(
+        type: MaterialType.transparency,
+        child: IconButton(
+          key: const ValueKey('send'),
+          splashRadius: 24,
+          splashColor: Colors.blue.shade100,
+          onPressed: () => _sendMessage(context),
+          icon: const Icon(Icons.send, color: Colors.blue),
+        ),
+      ),
+      transitionBuilder: (child, animation) => ScaleTransition(
+        scale: animation, 
+        child: child
+      ),
+      layoutBuilder: (currentChild, previousChildren) {
+        return Stack(
+          alignment: Alignment.centerRight,
+          children: <Widget>[
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _MediaActions extends StatefulWidget {
+  final VoidCallback sendFile;
+
+  const _MediaActions({Key? key, required this.sendFile}) : super(key: key);
+
+  @override
+  State<_MediaActions> createState() => __MediaActionsState();
+}
+
+class __MediaActionsState extends State<_MediaActions> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  final _appFolder = Environment().appFolder;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150)
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final input = Provider.of<ChatProvider>(context, listen: false);
+    final record = Provider.of<AudioProvider>(context);
+
+    final isRecording = record.isRecording;
+
+    return AnimatedBuilder(
+      animation: _controller, 
+      builder: (context, child) {
+        final dx = lerpDouble(0.0, kMinInteractiveDimension, _controller.value)!;
+        final scale = lerpDouble(1.0, 0.5, _controller.value)!;
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Transform.scale(
+              scale: scale,
+              child: Transform.translate(
+                offset: Offset(dx, 0.0),
+                child: IconButton(
+                  splashRadius: 24,
+                  onPressed: () async {
+                    final hasPermissions = await Permissions.checkStoragePermissions();
+                    
+                    if(hasPermissions){
+                      final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                      
+                      if(image != null){
+                        final ext = image.name.split('.').last;
+                        final fileName = Helpers.generateFileName('IMG', ext);
+
+                        await image.saveTo('${_appFolder.sent.path}/$fileName');
+                        input.message.image = fileName;
+
+                        widget.sendFile();
+                      }
+                    }
+                  }, 
+                  icon: const Icon(Icons.attach_file, color: Colors.grey,)
+                ),
+              ),
+            ),
+            GestureDetector(
+              onLongPressDown: (details) async {
+                final hasPermissions = await Permissions.checkAudioPermissions();
+                
+                if(hasPermissions){
+                  final fileName = Helpers.generateFileName('WAV', 'wav');
+                  input.message.audio = fileName;
+
+                  await record.record('${_appFolder.sent.path}/$fileName');
+                  _controller.forward();
+                }
+              },
+              onLongPressUp: () async {
+                if(isRecording){
+                  await record.stop();
+                  _controller.reverse();
+
+                  widget.sendFile();
+                }
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CustomPaint(
+                    painter: _RecordBackgroundPainter(animation: _controller),
+                  ),
+                  SizedBox.square(
+                    dimension: kMinInteractiveDimension,
+                    child: Icon(Icons.mic_none, color: isRecording ? Colors.white : Colors.grey)
+                  )
+                ],
+              )
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _RecordBackgroundPainter extends CustomPainter {
+  final Animation<double> animation;
+
+  _RecordBackgroundPainter({required this.animation}) : super(repaint: animation);
+
+  static const _maxRadius = 50;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+    ..color = Colors.blue.shade200;
+
+    final radius = lerpDouble(0.0, _maxRadius, animation.value)!;
+
+    canvas.drawCircle(const Offset(0.0, 0.0), radius, paint);
+  }
+
+  @override
+  bool shouldRepaint(_RecordBackgroundPainter oldDelegate) => true;
 }

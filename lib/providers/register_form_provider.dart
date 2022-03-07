@@ -43,7 +43,7 @@ class RegisterFormProvider extends ChangeNotifier {
     'name'     : '',
     'email'    : '',
     'password' : '',
-    'role'     : '',
+    'role'     : 'ADMIN_ROLE',
     'avatar'   : null
   };
 

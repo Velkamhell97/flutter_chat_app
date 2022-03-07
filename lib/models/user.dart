@@ -5,14 +5,18 @@ class User {
   final String email;
   final bool online;
   final Role role;
+  final bool google;
   final String uid;
+  Map<String, int> unread;
 
-  const User({
+  User({
     required this.name,
     required this.email,
     required this.online,
     required this.role,
+    required this.google,
     required this.uid,
+    this.unread = const {}
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -20,7 +24,9 @@ class User {
     email: json["email"],
     online: json["online"],
     role: Role.fromJson(json["role"]),
+    google: json["google"],
     uid: json["uid"],
+    unread:  Map<String, int>.from(json["unread"])
   );
 
   //-No se necesita el metodo porque no se necesitara modificar el usuario
@@ -34,7 +40,7 @@ class User {
   // }
 
   static const List<User> test = [
-    // User(online: true,  email: 'user1@gmail.com',  name: 'User 1',  role: Role(),  uid: '1'),
+    // User(online: true, google: true,  email: 'user1@gmail.com',  name: 'User 1',  role: Role(id: 'dasd', name: 'das'),  uid: '1'),
     // User(online: false, email: 'user2@gmail.com',  name: 'User 2',  role: Role(),  uid: '2'),
     // User(online: true,  email: 'user3@gmail.com',  name: 'User 3',  role: Role(),  uid: '3'),
     // User(online: false, email: 'user4@gmail.com',  name: 'User 4',  role: Role(),  uid: '4'),

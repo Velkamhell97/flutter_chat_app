@@ -1,37 +1,108 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:io';
 import 'dart:math';
 
+import 'package:chat_app/global/enviorement.dart';
+import 'package:chat_app/providers/audio_provider.dart';
 import 'package:chat_app/models/message.dart';
-import 'package:flutter/material.dart';
 
 class ChatMessage extends StatelessWidget {
   final Message message;
+  final bool sender;
 
-  const ChatMessage({Key? key, required this.message}) : super(key: key);
+  const ChatMessage({Key? key, required this.message, required this.sender}) : super(key: key);
+
+  static final _appFolder = Environment().appFolder;
+
+  String get _filePath => sender ? _appFolder.sent.path : _appFolder.received.path;
+  String get _fileName => message.image ?? message.audio!;
 
   @override
   Widget build(BuildContext context) {
-    final bool myMessage = message.uid == '1';
-    
+    final Size size = MediaQuery.of(context).size;
+    final player = Provider.of<AudioProvider>(context);
+
+    final isPlaying = player.isPlaying;
+    final selectedAudio = player.activeAudio == message.id;
+
     return Align(
-      alignment: myMessage ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: sender ? Alignment.centerRight : Alignment.centerLeft,
+      child: CustomPaint(
+        painter: sender ? _BubbleTailToPainter() : _BubbleTailFromPainter(),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Builder(
+            builder: (context) {
+              if(message.audio != null){
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Material(
+                      type: MaterialType.transparency,
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: IconButton(
+                        onPressed: () async {
+                          if(player.firstPlay || !selectedAudio){
+                            await player.play('$_filePath/$_fileName', message.id!);
+                          } else {
+                            await player.toggle();
+                          }
+                        },
+                        icon: !selectedAudio 
+                          ? const Icon(Icons.play_arrow)
+                          : isPlaying ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
+                      ),
+                    ),
+                    const SizedBox(width: 5.0),
+                    SliderTheme(
+                      data: const SliderThemeData(
+                        // trackShape: _CustomTrackShape()
+                      ),
+                      child: Slider.adaptive(
+                        max: player.maxDuration,
+                        value: selectedAudio ? player.playerTime : 0, 
+                        onChanged: (value ) {}
+                      ),
+                    )
+                  ],
+                );
+              }
 
-      // child: CustomPaint(
-      //   painter: myMessage ? _BubbleTailToPainter() : _BubbleTailFromPainter(),
-      //   child: Padding(
-      //     padding: const EdgeInsets.all(8.0),
-      //     child: Text(message.text),
-      //   ),
-      // ),
+              if(message.image != null){
+                return SizedBox(
+                  width: size.width * 0.5,
+                  height: size.height * 0.35,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: Image.file(
+                      File('$_filePath/$_fileName'),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                );
+              }
 
-      child: Container(
-        margin: myMessage ? const EdgeInsets.only(left: 50.0) : const EdgeInsets.only(right: 50.0),
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: myMessage ? Colors.blue.shade100 : Colors.black12,
-          borderRadius: BorderRadius.circular(12.0)
+              if(message.text != null){
+                return Text(message.text!);
+              }
+
+              return const SizedBox();
+            },
+          ),
         ),
-        child: Text(message.text),
       ),
+      
+      // child: Container(
+      //   margin: sender ? const EdgeInsets.only(left: 50.0) : const EdgeInsets.only(right: 50.0),
+      //   padding: const EdgeInsets.all(8.0),
+      //   decoration: BoxDecoration(
+      //     color: sender ? Colors.blue.shade100 : Colors.grey.shade100,
+      //     borderRadius: BorderRadius.circular(12.0)
+      //   ),
+      //   child: Text(message.message),
+      // ),
     );
   }
 }
@@ -41,7 +112,7 @@ class _BubblePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-    ..color = Colors.blue;
+    ..color = Colors.blue.shade100;
 
     final path = Path()
     ..addRRect(RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12.0)));
@@ -62,7 +133,7 @@ class _BubbleTailToPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-    ..color = Colors.blue;
+    ..color = Colors.blue.shade100;
 
     final rect = Offset.zero & size;
 
@@ -99,7 +170,7 @@ class _BubbleTailFromPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-    ..color = Colors.blue;
+    ..color = Colors.grey.shade100;
 
     final rect = Offset.zero & size;
 
@@ -126,4 +197,20 @@ class _BubbleTailFromPainter extends CustomPainter {
 
   @override
   bool shouldRebuildSemantics(_BubbleTailFromPainter oldDelegate) => true;
+}
+
+class _CustomTrackShape extends RoundedRectSliderTrackShape {
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+    }) {
+      final double trackHeight = sliderTheme.trackHeight!;
+      final double trackLeft = offset.dx;
+      final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+      final double trackWidth = parentBox.size.width;
+      return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+    }
 }

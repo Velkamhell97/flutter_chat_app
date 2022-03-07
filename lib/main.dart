@@ -1,13 +1,19 @@
+import 'package:chat_app/services/file_servides.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chat_app/global/enviorement.dart';
-import 'package:chat_app/providers/auth_form_provider.dart';
-import 'package:chat_app/services/auth_services.dart';
+import 'package:chat_app/global/globals.dart';
+import 'package:chat_app/services/services.dart';
 import 'package:chat_app/src/pages/pages.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // FlutterError.onError = (details) {
+  //   print('FRAMEWORK ERROR dd');
+  //   print(details.exception);
+  // };
 
   final String environment = String.fromEnvironment(
     'ENVIRONMENT',
@@ -15,6 +21,9 @@ void main() async {
   );
 
   Environment().initConfig(Env.values.byName(environment));
+
+  final prefs = SP();
+  await prefs.initPrefs();
 
   runApp(const AppState());
 }
@@ -26,9 +35,18 @@ class AppState extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => AuthService()),
-        //-Se ponde aqui para no perder el estado entre el login y el register (opcional)
-        ChangeNotifierProvider(create: (_) => AuthFormProvider()),
+        Provider(create: (_) => AuthServices()),
+        Provider(create: (_) => FileServices()),
+        Provider(create: (_) => SocketServices(null)),
+
+        ChangeNotifierProvider(create: (_) => ChatServices()),
+
+        // ChangeNotifierProvider(create: (_) => AuthFormProvider()), //->Manejo de los form en un solo (no optimo)
+
+        // ChangeNotifierProxyProvider<ChatServices, SocketServices>( //->Injeccion de un provider en otro
+        //   create: (context) => SocketServices(Provider.of<ChatServices>(context, listen: false)), 
+        //   update: (context, chat, previousSocket) => previousSocket!,
+        // ),
       ],
       child: const MyApp(),
     );
@@ -44,12 +62,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
+
       theme: ThemeData(
         fontFamily: 'ProximaNova',
         appBarTheme: const AppBarTheme(
           foregroundColor: Colors.black,
+          backgroundColor: Colors.white,
+          elevation: 0.0
         ),
       ),
+      
       // restorationScopeId: 'app',
       initialRoute: '/auth',
       routes: {
@@ -60,7 +82,15 @@ class MyApp extends StatelessWidget {
         '/reset-password' : (_) => const ResetPasswordPage(),
 
         '/users'          : (_) => const UsersPage(),
-        '/chat'           : (_) => const ChatPage(),
+        // '/chat'           : (_) => const ChatPage(),
+      },
+      onGenerateRoute: (settings) {
+        if(settings.name == '/chat'){
+          return CupertinoPageRoute(
+            builder: (context) => const ChatState(),
+            settings: settings
+          );
+        }
       },
     );
   }

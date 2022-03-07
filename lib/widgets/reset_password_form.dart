@@ -29,7 +29,7 @@ class ResetPasswordForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthService>(context, listen: false);
+    final auth = Provider.of<AuthServices>(context, listen: false);
     final form = Provider.of<ResetFormProvider>(context);
 
     final loading   = form.loading;

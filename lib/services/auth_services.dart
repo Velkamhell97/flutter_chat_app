@@ -1,17 +1,22 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:chat_app/models/models.dart';
 import 'package:chat_app/global/enviorement.dart';
 
-class AuthService {
-  static final String _authority = Environment().config.apiHost;
-  static final bool _https = Environment().config.useHttps;
+class AuthServices {
+  static final _apiHost = Environment().config.apiHost;
+  static final _apiRoutes = Environment().apiRoutes;
 
+  //-Se podrian dejar estaticos esto es algo comun en firebase tener los datos del usuario estatico
   User? user;
-  String? token;
+  static String? token;
+
+  //-Para obtener el token sin instanciar la clase
+  static Future<String?> getToken() async{
+    return await _storage.read(key: 'token');
+  }
 
   bool get isAuth => user != null && token != null;
 
@@ -37,24 +42,17 @@ class AuthService {
       } else {
         return true;
       }
-    //-Si alguno de los dos es nulo, lo saca
-    } else {
+    } else { //-Si alguno de los dos es nulo, lo saca
       return false;
     }
   }
 
   Future<ErrorResponse?> signin({required Map<String, dynamic> data}) async {
-    Uri url;
-
-    if(_https){
-      url = Uri.https(_authority, '/api/auth/login');
-    } else {
-      url = Uri.http(_authority, '/api/auth/login');
-    }
+    final url = _apiHost + _apiRoutes.login;
 
     try {
       //-Este paquete parece tener mejores respuestas para los timeout
-      final response = await _dio.post(url.toString(), data: data).timeout(_timeoutDuration);
+      final response = await _dio.post(url, data: data).timeout(_timeoutDuration);
 
       final authResponse = AuthResponse.fromJson(response.data);
 
@@ -76,13 +74,7 @@ class AuthService {
 
 
   Future<ErrorResponse?> signup({required Map<String, dynamic> data}) async {
-    Uri url;
-
-    if(_https){
-      url = Uri.https(_authority, '/api/users');
-    } else {
-      url = Uri.http(_authority, '/api/users');
-    }
+    final url = _apiHost + _apiRoutes.register;
 
     final image = data['avatar'];
 
@@ -93,7 +85,7 @@ class AuthService {
     }    
 
     try {
-      final response = await _dio.post(url.toString(), data: FormData.fromMap(data)).timeout(_timeoutDuration);
+      final response = await _dio.post(url, data: FormData.fromMap(data)).timeout(_timeoutDuration);
       final authResponse = AuthResponse.fromJson(response.data);
 
       user = authResponse.user;
@@ -114,16 +106,10 @@ class AuthService {
 
 
   Future<ErrorResponse?> sendResetCode({required String email}) async {
-    Uri url;
-    
-    if(_https){
-      url = Uri.https(_authority, '/api/auth/send-reset-token');
-    } else {
-      url = Uri.http(_authority, '/api/auth/send-reset-token');
-    }
+    final url = _apiHost + _apiRoutes.send_token;
 
     try {
-      await _dio.post(url.toString(), data: {'email': email}).timeout(_timeoutDuration);
+      await _dio.post(url, data: {'email': email}).timeout(_timeoutDuration);
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
       if(e.response != null){
         return ErrorResponse.fromJson(e.response!.data);
@@ -138,13 +124,7 @@ class AuthService {
 
 
   Future<ErrorResponse?> resetPassword({required Map<String, dynamic> data}) async {
-    Uri url;
-    
-    if(_https){
-      url = Uri.https(_authority, '/api/auth/reset-password');
-    } else {
-      url = Uri.http(_authority, '/api/auth/reset-password');
-    }
+    final url = _apiHost + _apiRoutes.reset_password;
 
     try {
       await _dio.post(url.toString(), data: data).timeout(_timeoutDuration);
@@ -160,22 +140,16 @@ class AuthService {
     }
   }
 
-  Future<ErrorResponse?> renewToken(String token) async {
-    Uri url;
-
-    if(_https){
-      url = Uri.https(_authority, '/api/auth/renew');
-    } else {
-      url = Uri.http(_authority, '/api/auth/renew');
-    }
+  Future<ErrorResponse?> renewToken(String oldToken) async {
+    final url = _apiHost + _apiRoutes.renew_token;
 
     try {
-      final response = await _dio.get(url.toString(), options: Options(headers: {'x-token': token})).timeout(_timeoutDuration);
+      final response = await _dio.get(url, options: Options(headers: {'x-token': oldToken})).timeout(_timeoutDuration);
       final authResponse = AuthResponse.fromJson(response.data);
 
       user = authResponse.user;
       token = authResponse.token;
-      
+
       await _storage.write(key: 'token', value: token);
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
       if(e.response != null){
