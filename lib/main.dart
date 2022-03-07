@@ -17,7 +17,7 @@ void main() async {
 
   final String environment = String.fromEnvironment(
     'ENVIRONMENT',
-    defaultValue: Env.DEV.name
+    defaultValue: Env.PROD.name
   );
 
   Environment().initConfig(Env.values.byName(environment));

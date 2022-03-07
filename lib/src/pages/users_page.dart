@@ -60,14 +60,17 @@ class _UsersPageState extends State<UsersPage> {
         Notifications.showStoragePermissionDialog(context);
       } else {
         socket.socket.on('chat-message', (payload) async {
+          print('user-1');
           final json = jsonDecode(payload);
           final message = Message.fromJson(json['message']);
 
+          print('user-2');
           if(message.image != null || message.audio != null){
             await file.downloadFile(message.tempUrl!, message.image ?? message.audio!);
             file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
           } 
 
+          print('user-3');
           chat.uploadUnread(message.from).then((value) {
             if(value != null){
               auth.user!.unread[message.from] = value;
@@ -146,8 +149,8 @@ class _UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthServices>(context);
-    final chat = Provider.of<ChatServices>(context);
+    final auth = Provider.of<AuthServices>(context, listen: false);
+    // final chat = Provider.of<ChatServices>(context);
     final Color color = user.online ? Colors.green.shade300 : Colors.red.shade300;
 
     final unreadMsg = auth.user?.unread[user.uid] ?? 0;
@@ -170,7 +173,26 @@ class _UserTile extends StatelessWidget {
             chat.chatMessages = null;
             socket.off('chat-message');
 
-            Navigator.of(context).pushNamed('/chat');
+            Navigator.of(context).pushNamed('/chat').then((value) {
+              final file = Provider.of<FileServices>(context, listen: false);
+
+              socket.on('chat-message', (payload) async {
+                final json = jsonDecode(payload);
+                final message = Message.fromJson(json['message']);
+
+                if(message.image != null || message.audio != null){
+                  await file.downloadFile(message.tempUrl!, message.image ?? message.audio!);
+                  file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
+                } 
+
+                chat.uploadUnread(message.from).then((value) {
+                  if(value != null){
+                    auth.user!.unread[message.from] = value;
+                    chat.updateStream();
+                  }
+                });
+              });
+            });
           },
         ),
         if(unreadMsg != null && unreadMsg != 0)

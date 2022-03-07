@@ -81,7 +81,9 @@ class _ChatPageState extends State<ChatPage> {
       message.read = true;
 
       chat.addMessage(message);
-      input.listKey.currentState!.insertItem(0);
+      if(input.listKey.currentState != null){
+        input.listKey.currentState!.insertItem(0);
+      }
 
       socket.emit('message-read', message.id);
     });
@@ -144,7 +146,7 @@ class _ChatPageState extends State<ChatPage> {
                           reverse: true, //-Empezamos en el ultimo elemento y scroleamos hacia arriba
                           itemBuilder: (_, index, animation) {
                             final message = chat.chatMessages![index];
-                            
+
                             return SizeTransition(
                               sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
                               axisAlignment: -1.0,
