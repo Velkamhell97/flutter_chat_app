@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:ui';
@@ -77,6 +78,7 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
+    socket.off('chat-message');
     socket.on('chat-message', (payload) async {
       if(chat.receiverUser != null){
         final json = jsonDecode(payload);
@@ -141,7 +143,7 @@ class _ChatPageState extends State<ChatPage> {
                     //---------------------------------
                     // Header
                     //---------------------------------
-                    _Header(user: chat.receiverUser!),
+                    _Header(user: chat.receiverUser),
     
                     //---------------------------------
                     // Messages
@@ -215,7 +217,7 @@ class _ChatPageState extends State<ChatPage> {
 
 //-Mas manejable para transiciones en vez de un appbar
 class _Header extends StatelessWidget {
-  final User user;
+  final User? user;
 
   const _Header({Key? key, required this.user}) : super(key: key);
 
@@ -235,11 +237,11 @@ class _Header extends StatelessWidget {
               IconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(Icons.arrow_back)),
               const SizedBox(width: 5.0),
               CircleAvatar(
-                child: Text(user.name.substring(0,2)),
+                child: Text(user?.name.substring(0,2) ?? 'any'),
                 backgroundColor: Colors.blue[100],
               ),
               const SizedBox(width: 10.0),
-              Expanded(child: Text(user.name)),
+              Expanded(child: Text(user?.name ?? 'any')),
               IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
             ],
           ),
@@ -310,7 +312,12 @@ class _ChatActions extends StatelessWidget {
 
       if(input.message.image != null || input.message.audio != null){
         final tempUrl = await file.uploadFile(input.message.image ?? input.message.audio!);
-        input.message.tempUrl = tempUrl;
+        
+        if(tempUrl != null){
+          input.message.tempUrl = tempUrl;
+        } else {
+          Notifications.showSnackBar(file.error!.details.msg);
+        }
       }
 
       socket.emit('chat-message', input.message);
@@ -387,87 +394,106 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final input = Provider.of<ChatProvider>(context, listen: false);
+    final record = Provider.of<AudioProvider>(context, listen: false);
 
     return Selector<AudioProvider, bool>(
       selector: (p0, p1) => p1.isRecording,
       builder: (context, isRecording, child) {
-        final record = Provider.of<AudioProvider>(context, listen: false);
-
         return  AnimatedBuilder(
           animation: _controller, 
           builder: (context, child) {
             final dx = lerpDouble(0.0, kMinInteractiveDimension, _controller.value)!;
             final scale = lerpDouble(1.0, 0.5, _controller.value)!;
       
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Transform.scale(
-                  scale: scale,
-                  child: Transform.translate(
-                    offset: Offset(dx, 0.0),
-                    child: IconButton(
-                      splashRadius: 24,
-                      onPressed: () async {
-                        final hasPermissions = await Permissions.checkStoragePermissions();
-                        
-                        if(hasPermissions){
-                          final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                          
-                          if(image != null){
-                            final ext = image.name.split('.').last;
-                            final fileName = Helpers.generateFileName('IMG', ext);
-      
-                            await image.saveTo('${_appFolder.sent.path}/$fileName');
-                            input.message.image = fileName;
-      
-                            widget.sendFile();
-                          }
-                        } else {
-                          Notifications.showSnackBar('You must accept permissions');
-                        }
-                      }, 
-                      icon: const Icon(Icons.attach_file, color: Colors.grey,)
+            return Container(
+              color: Colors.transparent, //Sin este al hacer tap exatco en la mitad de ambos se abre el teclado
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Transform.scale(
+                    scale: scale,
+                    child: Transform.translate(
+                      offset: Offset(dx, 0.0),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: IconButton(
+                          splashRadius: 24,
+                          onPressed: () async {
+                            final hasPermissions = await Permissions.checkStoragePermissions();
+                            
+                            if(hasPermissions){
+                              final XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                              
+                              if(image != null){
+                                final ext = image.name.split('.').last;
+                                final fileName = Helpers.generateFileName('IMG', ext);
+                            
+                                await image.saveTo('${_appFolder.sent.path}/$fileName');
+                                input.message.image = fileName;
+                            
+                                widget.sendFile();
+                              }
+                            } else {
+                              Notifications.showSnackBar('You must accept permissions');
+                            }
+                          }, 
+                          icon: const Icon(Icons.attach_file, color: Colors.grey,)
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                GestureDetector(
-                  onLongPressDown: (details) async {
-                    final firstTime = await Permission.microphone.isGranted;
-                    final hasPermissions = await Permissions.checkAudioPermissions();
+                  RawGestureDetector(
+                    gestures: <Type, GestureRecognizerFactory> {
+                      LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+                        () => LongPressGestureRecognizer(
+                          debugOwner: this,
+                          duration: const Duration(milliseconds: 150),
+                        ),
+                        (LongPressGestureRecognizer instance){
+                          instance.onLongPressStart = (_) async {
+                            final firstTime = await Permission.microphone.isGranted;
+                            final hasPermissions = await Permissions.checkAudioPermissions();
 
-                    if(hasPermissions && firstTime){
-                      final fileName = Helpers.generateFileName('WAV', 'wav');
-                      input.message.audio = fileName;
-      
-                      await record.record('${_appFolder.sent.path}/$fileName');
-                      _controller.forward();
-                    } else if(!hasPermissions) {
-                      Notifications.showSnackBar('You must accept permissions');
-                    }
-                  },
-                  onLongPressUp: () async {
-                    if(isRecording){
-                      await record.stop();
-                      _controller.reverse();
-      
-                      widget.sendFile();
-                    }
-                  },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CustomPaint(
-                        painter: _RecordBackgroundPainter(animation: _controller),
-                      ),
-                      SizedBox.square(
-                        dimension: kMinInteractiveDimension,
-                        child: Icon(Icons.mic_none, color: isRecording ? Colors.white : Colors.grey)
+                            if(hasPermissions && firstTime){
+                              final fileName = Helpers.generateFileName('WAV', 'wav');
+                              input.message.audio = fileName;
+              
+                              await record.record('${_appFolder.sent.path}/$fileName');
+                              _controller.forward();
+                            } else if(!hasPermissions) {
+                              Notifications.showSnackBar('You must accept permissions');
+                            }
+                          };
+                          instance.onLongPressEnd = (_) async {
+                            if(isRecording){
+                              await record.stop();
+                              _controller.reverse();
+                              
+                              if(record.recordTimeUnits >= 1){
+                                widget.sendFile();
+                              }
+
+                              record.recordTime = '';
+                            }
+                          };
+                        }
                       )
-                    ],
-                  )
-                ),
-              ],
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          painter: _RecordBackgroundPainter(animation: _controller),
+                        ),
+                        SizedBox.square(
+                          dimension: kMinInteractiveDimension,
+                          child: Icon(Icons.mic_none, color: isRecording ? Colors.white : Colors.grey)
+                        )
+                      ],
+                    )
+                  ),
+                ],
+              ),
             );
           },
         );

@@ -22,7 +22,7 @@ class AuthPage extends StatelessWidget {
           }
 
           if(snapshot.data == false){
-            print('user invalid');
+            // print('user invalid');
             socket.disconnect();
 
             Future.microtask((){
@@ -32,7 +32,7 @@ class AuthPage extends StatelessWidget {
               ));
             });
           } else {
-            print('user valid');
+            // print('user valid');
             // socket.connect(user.token!);
 
             Future.microtask((){

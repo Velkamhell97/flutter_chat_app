@@ -61,6 +61,8 @@ class AudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int get recordTimeUnits => int.parse(_recordTime.characters.last);
+
   double _maxDuration = 1.0;
   double get maxDuration => _maxDuration;
   set maxDuration(double maxDuration) {
@@ -115,7 +117,7 @@ class AudioProvider extends ChangeNotifier {
     if (_canRecord && _isRecording) {
       await _audioRecorder!.stopRecorder();
       isRecording = false;
-      recordTime = '';
+      // recordTime = '';
       _disposeRecordStream();
     }
   }

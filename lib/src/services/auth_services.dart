@@ -29,7 +29,7 @@ class AuthServices extends ChangeNotifier {
   //-Traemos el token, lo comparamos con el servicio, si esta vencido o no esta devuelve a login, si esta presente
   //-y no esta vencido, solicitamos uno nuevo y actualizamos el usuario logeado y el token (el usuario no se almacena internamente)
   Future<bool> isLogged() async {
-    print('verifing user...');
+    // print('verifing user...');
 
     final token = await _storage.read(key: 'token');
 

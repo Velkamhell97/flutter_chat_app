@@ -132,25 +132,23 @@ class ChatMessage extends StatelessWidget {
   }
 }
 
-class _BubblePainter extends CustomPainter {
+//-Clase principal del
+// class _BubblePainter extends CustomPainter {
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-    ..color = Colors.blue.shade100;
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()
+//     ..color = Colors.blue.shade100;
 
-    final path = Path()
-    ..addRRect(RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12.0)));
+//     final path = Path()
+//     ..addRRect(RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(12.0)));
 
-    canvas.drawPath(path, paint);
-  }
+//     canvas.drawPath(path, paint);
+//   }
 
-  @override
-  bool shouldRepaint(_BubblePainter oldDelegate) => false;
-
-  @override
-  bool shouldRebuildSemantics(_BubblePainter oldDelegate) => false;
-}
+//   @override
+//   bool shouldRepaint(_BubblePainter oldDelegate) => false;
+// }
 
 class _BubbleTailToPainter extends CustomPainter {
   static const _radius = Radius.circular(12.0);
@@ -184,9 +182,6 @@ class _BubbleTailToPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BubbleTailToPainter oldDelegate) => false;
-
-  @override
-  bool shouldRebuildSemantics(_BubbleTailToPainter oldDelegate) => false;
 }
 
 class _BubbleTailFromPainter extends CustomPainter {
@@ -219,23 +214,21 @@ class _BubbleTailFromPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BubbleTailFromPainter oldDelegate) => true;
-
-  @override
-  bool shouldRebuildSemantics(_BubbleTailFromPainter oldDelegate) => true;
 }
 
-class _CustomTrackShape extends RoundedRectSliderTrackShape {
-  Rect getPreferredRect({
-    required RenderBox parentBox,
-    Offset offset = Offset.zero,
-    required SliderThemeData sliderTheme,
-    bool isEnabled = false,
-    bool isDiscrete = false,
-    }) {
-      final double trackHeight = sliderTheme.trackHeight!;
-      final double trackLeft = offset.dx;
-      final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
-      final double trackWidth = parentBox.size.width;
-      return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
-    }
-}
+//-Para que el slide no tenga tanto padding a los bordes
+// class _CustomTrackShape extends RoundedRectSliderTrackShape {
+//   Rect getPreferredRect({
+//     required RenderBox parentBox,
+//     Offset offset = Offset.zero,
+//     required SliderThemeData sliderTheme,
+//     bool isEnabled = false,
+//     bool isDiscrete = false,
+//     }) {
+//       final double trackHeight = sliderTheme.trackHeight!;
+//       final double trackLeft = offset.dx;
+//       final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+//       final double trackWidth = parentBox.size.width;
+//       return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+//     }
+// }

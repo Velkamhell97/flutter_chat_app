@@ -55,11 +55,12 @@ class _UsersPageState extends State<UsersPage> {
 
     WidgetsBinding.instance!.addPostFrameCallback((_) async { 
       final storagePermissions = await Permissions.checkStoragePermissions();
-      
+
       if(!storagePermissions){
         await Future.delayed(const Duration(milliseconds: 200));
         Notifications.showStoragePermissionDialog(context);
       } else {
+        socket.socket.off('chat-home-message');
         socket.socket.on('chat-home-message', (payload) async {
           if(chat.receiverUser == null){
             final json = jsonDecode(payload);

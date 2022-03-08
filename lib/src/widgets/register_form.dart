@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
+// import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
-import 'dart:io';
+// import 'dart:io';
 
 import '../providers/providers.dart';
 import '../services/services.dart';
@@ -160,44 +160,45 @@ class RegisterForm extends StatelessWidget {
   }
 }
 
-class _UploadBox extends StatelessWidget {
-  final String? image;
+//-Para subir imagenes
+// class _UploadBox extends StatelessWidget {
+//   final String? image;
 
-  const _UploadBox({Key? key, required this.image}) : super(key: key);
+//   const _UploadBox({Key? key, required this.image}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    final upload = image != null;
+//   @override
+//   Widget build(BuildContext context) {
+//     final upload = image != null;
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      height: 50,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(10.0)
-      ),
-      child: Row(
-        children: [
-          Flexible(
-            flex: 1,
-            child: SizedBox.expand(
-              child: upload ? Image.file(File(image!), fit: BoxFit.fitWidth) : const Icon(Icons.image),
-            ),
-          ),
-          const VerticalDivider(color: Colors.grey, thickness: 2, width: 0),
-          Flexible(
-            flex: 3,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                upload ? const Icon(Icons.check_circle_outline) : const Icon(Icons.upload),
-                const SizedBox(width: 10),
-                upload ? const Text('Image Uploaded') :const Text('Upload Image'),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
+//     return Container(
+//       clipBehavior: Clip.antiAlias,
+//       height: 50,
+//       decoration: BoxDecoration(
+//         border: Border.all(color: Colors.grey),
+//         borderRadius: BorderRadius.circular(10.0)
+//       ),
+//       child: Row(
+//         children: [
+//           Flexible(
+//             flex: 1,
+//             child: SizedBox.expand(
+//               child: upload ? Image.file(File(image!), fit: BoxFit.fitWidth) : const Icon(Icons.image),
+//             ),
+//           ),
+//           const VerticalDivider(color: Colors.grey, thickness: 2, width: 0),
+//           Flexible(
+//             flex: 3,
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 upload ? const Icon(Icons.check_circle_outline) : const Icon(Icons.upload),
+//                 const SizedBox(width: 10),
+//                 upload ? const Text('Image Uploaded') :const Text('Upload Image'),
+//               ],
+//             ),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }

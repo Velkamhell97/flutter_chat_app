@@ -1,27 +1,46 @@
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'enviorement.dart';
 
 class Permissions {
   static final _appFolder = Environment().appFolder;
+  static const _platform = MethodChannel('samples.flutter.dev/sdk');
+
+  static Future<int> _getAndroidVersion() async {
+    try {
+      return await _platform.invokeMethod('getAndroidVersion');
+    } catch (e) {
+      // print(e);
+      return 30;
+    }
+  }
 
   //-Se podria guardar la informacion en el folder de la app, que no necesita permisos (parece), mientras
   //-se aceptan los permisos para pasarlo a una carpeta local, esta bandera se podria guardar en los sharedPreferences
   static Future<bool> checkStoragePermissions() async {
-    final status =  await Permission.storage.status;
+    PermissionStatus status =  await Permission.storage.status;
 
     if(!status.isGranted){
-      final newStatus = await Permission.storage.request();
-      
-      if(!newStatus.isGranted){
-        return false;
-      } else {
-        await _createAppFolder();
-        return true;
+      status = await Permission.storage.request();
+    } 
+    
+    final androidVersion = await _getAndroidVersion();
+
+    if(status.isGranted){
+      if(androidVersion > 29) {
+        status = await Permission.manageExternalStorage.status;
+        if(!status.isGranted){
+          status = await Permission.manageExternalStorage.request();
+         }
       }
-    } else {
+    }
+
+    if(status.isGranted){
       await _createAppFolder();
       return true;
+    } else {
+      return false;
     }
   }
 

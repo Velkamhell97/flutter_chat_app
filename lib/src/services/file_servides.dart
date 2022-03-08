@@ -22,9 +22,13 @@ class FileServices {
     return res.isSuccessful;
   }
 
+  ErrorResponse? error;
+
   Future<String?> uploadFile(String name) async {
     final url = _apiHost + _apiRoutes.upload_file;
     final token = AuthServices.token;
+
+    error = null;
 
     try {
       final body = FormData.fromMap({'file': await MultipartFile.fromFile('${_appFolder.sent.path}/$name')});
@@ -33,16 +37,16 @@ class FileServices {
       final chatFileResponse = ChatFileResponse.fromJson(response.data);
       return chatFileResponse.file.secureUrl;
     } on DioError catch (e){
-      print(e.response);
-      // if(e.response != null){
-      //   return ErrorResponse.fromJson(e.response!.data);
-      // }
+      if(e.response != null){
+        error = ErrorResponse.fromJson(e.response!.data);
+        return null;
+      }
     } catch (e) {
-      print(e.toString());
-      // return ErrorResponse(
-      //   error: e.toString(), 
-      //   details: Details(code: 500, msg: e.toString(), name: "UNKNOWN ERROR", extra: null)
-      // );
+      error = ErrorResponse(
+        error: e.toString(), 
+        details: Details(code: 500, msg: e.toString(), name: "UNKNOWN ERROR", extra: null)
+      );
+      return null;
     }
   }
 

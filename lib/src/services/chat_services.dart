@@ -89,11 +89,9 @@ class ChatServices extends ChangeNotifier {
       chatMessages = messages;
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
       if(e.response != null){
-        print(e.response);
         error = ErrorResponse.fromJson(e.response!.data);
       }
     } catch (e) {
-      print(e);
       error = ErrorResponse(
         error: e.toString(), 
         details: Details(code: 500, msg: e.toString(), name: "UNKNOWN ERROR", extra: null)
@@ -120,12 +118,10 @@ class ChatServices extends ChangeNotifier {
       return response.data['value'] ?? 0;
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
       if(e.response != null){
-        print(e.response);
         error = ErrorResponse.fromJson(e.response!.data);
         return null;
       }
     } catch (e) {
-      print(e);
       error = ErrorResponse(
         error: e.toString(), 
         details: Details(code: 500, msg: e.toString(), name: "UNKNOWN ERROR", extra: null)
