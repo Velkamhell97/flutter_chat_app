@@ -25,7 +25,6 @@ class _UsersPageState extends State<UsersPage> {
   Future<void> _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 1000));
     // await chat.getUsers(); //-actualizacion usuarios manual
-
     _refreshController.refreshCompleted();
   }
 
@@ -60,9 +59,9 @@ class _UsersPageState extends State<UsersPage> {
         await Future.delayed(const Duration(milliseconds: 200));
         Notifications.showStoragePermissionDialog(context);
       } else {
-        socket.socket.off('chat-home-message');
+        socket.socket.off('chat-home-message'); //-Se evita crear doble listeners
         socket.socket.on('chat-home-message', (payload) async {
-          if(chat.receiverUser == null){
+          if(chat.receiverUser == null){ //-Solo se ejecuta si no esta dentro del chat
             final json = jsonDecode(payload);
             final message = Message.fromJson(json['message']);
 
@@ -71,7 +70,7 @@ class _UsersPageState extends State<UsersPage> {
               file.deleteTempFile(message.tempUrl!); //No se hace el await para actaulizar la ui mas rapido
             } 
 
-            chat.uploadUnread(message.from).then((value) {
+            chat.uploadUnread(message.from).then((value) { //con el then para no parar la ui
               if(value != null){
                 auth.updateUnread(message.from, value);
               } else {

@@ -16,8 +16,14 @@ class FileServices {
   final Cloudinary _cloudinary = Cloudinary('939227237552849', 'ErEEDpd7aPkDhNzJkg-2de9v0PY', 'dwzr9lray');
 
   Future<bool> deleteTempFile(String secureUrl) async {
-    final name = secureUrl.split('/').last.split('.').first;
-    final res = await _cloudinary.deleteFile(publicId: 'flutter_chat_back/chat/$name');
+    final file = secureUrl.split('/').last.split('.');
+    final name = file[0];
+    final ext = file[1];
+    
+    final res = await _cloudinary.deleteFile(
+      publicId: 'flutter_chat_back/chat/$name',
+      resourceType: ext == 'wav' ? CloudinaryResourceType.video : CloudinaryResourceType.image
+    );
 
     return res.isSuccessful;
   }

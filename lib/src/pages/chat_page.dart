@@ -18,13 +18,14 @@ class ChatState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //-Para crear el mensaje de una vez con el from y to
     final fromUser = Provider.of<AuthServices>(context, listen: false).user!;
     final toUser = Provider.of<ChatServices>(context, listen: false).receiverUser!;
 
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ChatProvider(fromUser.uid, toUser.uid)),
-        ChangeNotifierProvider(create: (context) => AudioProvider())
+        ChangeNotifierProvider(create: (context) => AudioProvider()) //-cada chat tiene su audioProvider
       ],
       child: const ChatPage(),
     );
@@ -54,6 +55,7 @@ class _ChatPageState extends State<ChatPage> {
 
     chat.getChatMessages().then((_) {
       if(chat.error == null){
+        //-Despues de traido los mensajes actualizamos los no leidos
         final unread = chat.chatMessages!.where((message) {
           return message.from != auth.user!.uid && !message.read;
         }).toList();
@@ -78,7 +80,7 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
 
-    socket.off('chat-message');
+    socket.off('chat-message'); //-Evita doble listener
     socket.on('chat-message', (payload) async {
       if(chat.receiverUser != null){
         final json = jsonDecode(payload);
@@ -217,7 +219,7 @@ class _ChatPageState extends State<ChatPage> {
 
 //-Mas manejable para transiciones en vez de un appbar
 class _Header extends StatelessWidget {
-  final User? user;
+  final User? user; //-por aguna razon un error al volver
 
   const _Header({Key? key, required this.user}) : super(key: key);
 
@@ -259,7 +261,7 @@ class _ChatTextField extends StatelessWidget {
     final input = Provider.of<ChatProvider>(context, listen: false);
     final record = Provider.of<AudioProvider>(context);
 
-    final recordTime = record.recordTime;
+    final recordTime = record.recordTime; //-Solo se actualiza el input del timer
 
     return SizedBox(
       child: TextField(
@@ -302,6 +304,8 @@ class _ChatActions extends StatelessWidget {
 
     input.message.time = DateFormat("hh:mm a").format(DateTime.now());
 
+    //-Emitir con callback, necesitamos obtener el id antes de agregar a los mensajes porque esta es la referencia
+    //-que se utiliza para saber que audio actual esta sonand
     socket.emitWithAck('message-id', input.message, ack: (id) async {
       input.message.id = id;
 
@@ -320,6 +324,7 @@ class _ChatActions extends StatelessWidget {
         }
       }
 
+      //-Enviamos el mensaje al chat y home chat, solo puede escuchar uno el receptor
       socket.emit('chat-message', input.message);
 
       input.textController.clear();
@@ -329,7 +334,7 @@ class _ChatActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final input = Provider.of<ChatProvider>(context);
+    final input = Provider.of<ChatProvider>(context); //-Solo se actualiza con cambios en el foco o texto del input
 
     return AnimatedSwitcher(
       duration: kThemeAnimationDuration,
@@ -396,12 +401,12 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
     final input = Provider.of<ChatProvider>(context, listen: false);
     final record = Provider.of<AudioProvider>(context, listen: false);
 
-    return Selector<AudioProvider, bool>(
-      selector: (p0, p1) => p1.isRecording,
-      builder: (context, isRecording, child) {
+    return Selector<AudioProvider, bool>( //-Solo se actualiza con el booleano para cambiar el boton de record
+      selector: (_, p1) => p1.isRecording,
+      builder: (context, isRecording, _) {
         return  AnimatedBuilder(
           animation: _controller, 
-          builder: (context, child) {
+          builder: (context, _) {
             final dx = lerpDouble(0.0, kMinInteractiveDimension, _controller.value)!;
             final scale = lerpDouble(1.0, 0.5, _controller.value)!;
       
@@ -442,7 +447,7 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
                       ),
                     ),
                   ),
-                  RawGestureDetector(
+                  RawGestureDetector( //-Permite modificar los tiempos del longpress
                     gestures: <Type, GestureRecognizerFactory> {
                       LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
                         () => LongPressGestureRecognizer(
@@ -451,6 +456,7 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
                         ),
                         (LongPressGestureRecognizer instance){
                           instance.onLongPressStart = (_) async {
+                            //-Se puede tener esto en un shared preferences
                             final firstTime = await Permission.microphone.isGranted;
                             final hasPermissions = await Permissions.checkAudioPermissions();
 
@@ -469,7 +475,7 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
                               await record.stop();
                               _controller.reverse();
                               
-                              if(record.recordTimeUnits >= 1){
+                              if(record.recordTimeUnits >= 1){ //Si el mensaje dura al menos 1 segundo s envia
                                 widget.sendFile();
                               }
 

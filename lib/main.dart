@@ -36,11 +36,9 @@ class AppState extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthServices()),
         Provider(create: (_) => FileServices()),
-        Provider(create: (_) => SocketServices(null)),
+        Provider(create: (_) => SocketServices()),
 
         ChangeNotifierProvider(create: (_) => ChatServices()),
-
-        // ChangeNotifierProvider(create: (_) => AuthFormProvider()), //->Manejo de los form en un solo (no optimo)
 
         // ChangeNotifierProxyProvider<ChatServices, SocketServices>( //->Injeccion de un provider en otro
         //   create: (context) => SocketServices(Provider.of<ChatServices>(context, listen: false)), 
@@ -55,7 +53,6 @@ class AppState extends StatelessWidget {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

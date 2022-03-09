@@ -7,6 +7,7 @@ class Permissions {
   static final _appFolder = Environment().appFolder;
   static const _platform = MethodChannel('samples.flutter.dev/sdk');
 
+  //-Los methodChannel pueden ser muy utiles y ahorrar el uso de paquetes
   static Future<int> _getAndroidVersion() async {
     try {
       return await _platform.invokeMethod('getAndroidVersion');
@@ -16,8 +17,9 @@ class Permissions {
     }
   }
 
-  //-Se podria guardar la informacion en el folder de la app, que no necesita permisos (parece), mientras
-  //-se aceptan los permisos para pasarlo a una carpeta local, esta bandera se podria guardar en los sharedPreferences
+  //-Podriamos almacenar en un shared preferences si el usuario previamente dio el permiso para
+  //-no ejecutar toda la funcion de nuevo, sin embargo, si este llega a desactivar un permiso manualmente
+  //-no se podria detectar y actualizar el sp
   static Future<bool> checkStoragePermissions() async {
     PermissionStatus status =  await Permission.storage.status;
 
@@ -62,6 +64,8 @@ class Permissions {
     }
   }
 
+  //-Hay otras opciones de almacenamiento con mejores practicas como utilizar el externalAppStorage (com.app)
+  //-o en media, que es donde se pueden almacenar estos archivos de media, sin tener tantos problemas de seguridad
   static Future<void> _createAppFolder() async {
     if(!await _appFolder.sent.exists()){
       await _appFolder.sent.create(recursive: true);

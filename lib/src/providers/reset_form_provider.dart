@@ -6,7 +6,7 @@ import '../models/models.dart';
 class ResetFormProvider extends ChangeNotifier {
   final key = GlobalKey<FormState>();
 
-  ResetFormProvider(String loginEmail){
+  ResetFormProvider(String loginEmail){ //-Email que viene del login
     body['email'] = loginEmail;
   }
 

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 // ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-import '../services/services.dart';
 import '../global/globals.dart';
 
 enum ServerStatus {
@@ -19,13 +18,16 @@ class SocketServices  {
   late final IO.Socket socket;
   dynamic socketError;
 
-  final ChatServices? _chat;
+  // final ChatServices? _chat;
+  // SocketServices(this._chat){
+  //   ...
+  // }
 
   final ValueNotifier<bool> online = ValueNotifier(false);
 
   static ServerStatus serverStatus = ServerStatus.connecting; //-Metodo estatico, no redibuja
 
-  SocketServices(this._chat){
+  SocketServices(){
     socket = IO.io(_host, 
       IO.OptionBuilder()
       .setTransports(['websocket'])
@@ -41,10 +43,6 @@ class SocketServices  {
     try {
       socket.auth = {'token':token};
       socket.connect();
-
-      //-Antes de la conexion se desuscribe para no crear doble listener
-      socket.off('user-connect');
-      socket.off('user-disconnect');
 
       socket.on('connect', (_) {
         online.value = true;

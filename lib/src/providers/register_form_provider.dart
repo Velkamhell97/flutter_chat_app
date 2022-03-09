@@ -6,7 +6,7 @@ import '../models/models.dart';
 class RegisterFormProvider extends ChangeNotifier {
   final key = GlobalKey<FormState>();
 
-  RegisterFormProvider(String loginEmail){
+  RegisterFormProvider(String loginEmail){ //-Email que viene del login
     body['email'] = loginEmail;
   }
 
