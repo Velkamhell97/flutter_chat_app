@@ -1,4 +1,6 @@
 
+// ignore_for_file: body_might_complete_normally_nullable
+
 import 'dart:io';
 import 'package:cloudinary_sdk/cloudinary_sdk.dart';
 import 'package:dio/dio.dart';

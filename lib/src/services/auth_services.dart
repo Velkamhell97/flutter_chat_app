@@ -1,3 +1,5 @@
+// ignore_for_file: body_might_complete_normally_nullable
+
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +95,7 @@ class AuthServices extends ChangeNotifier {
       token = authResponse.token;
 
       await _storage.write(key: 'token', value: token);
+      return null;
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
       if(e.response != null){
         return ErrorResponse.fromJson(e.response!.data);
@@ -111,6 +114,7 @@ class AuthServices extends ChangeNotifier {
 
     try {
       await _dio.post(url, data: {'email': email}).timeout(_timeoutDuration);
+      return null;
     } on DioError catch (e){ //-Con este package los errores se capturan como una excepcion
       if(e.response != null){
         return ErrorResponse.fromJson(e.response!.data);
