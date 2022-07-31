@@ -33,7 +33,7 @@ Future<void> onBackgroundTerminated(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.development));
+  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.production));
 
   await Firebase.initializeApp();
 
@@ -49,7 +49,7 @@ void main() async {
 
   await NotificationsService().init();
 
-  print(await FirebaseMessaging.instance.getToken());
+  debugPrint(await FirebaseMessaging.instance.getToken());
 
   FirebaseMessaging.onBackgroundMessage(onBackgroundTerminated);
 

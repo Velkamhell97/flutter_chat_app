@@ -126,7 +126,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
     final files = Provider.of<FilesService>(context, listen: false);
 
     socket.on('incoming-message', (json) async {
-      print('message');
+      // print('message');
       final message = Message.fromJson(json["message"]);
 
       if(message is MediaMessage){

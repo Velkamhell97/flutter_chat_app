@@ -75,7 +75,7 @@ class MessagesService {
       /// Si no existe el file (si es sender deberia existir), se descarga nuevamente, y si se obtiene
       /// un error se deja como que no existe (se deberia habilitar el boton para intentar descargar)
       if(!message.exist){
-        print('download');
+        // print('download');
         final error = await _files.downloadFile(message);
         message.exist = error == null;
       }
