@@ -1,22 +1,25 @@
 import 'user.dart';
 
 class AuthResponse {
-  //-Tampoco cambian
-  final String msg;
+  final int status;
+  final String message;
   final User user;
-  final String token;
+  final String? token;
 
   const AuthResponse({
-    required this.msg,
+    required this.status,
+    required this.message,
     required this.user,
-    required this.token,
+    this.token
   });
    
-  factory AuthResponse.fromJson(Map<String, dynamic> json) => AuthResponse(
-    msg: json["msg"],
-    user: User.fromJson(json["user"]),
-    token: json["token"],
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    // print(json);
+    return AuthResponse(
+    status: json["status"],
+    message: json["message"],
+    user: User.fromJson(json["payload"]["user"]),
+    token: json["payload"]["token"],
   );
-
-  //-El metodo toJSON, generalmente sirve para enviar el objeto datos a la api, por ejemplo para un update
+  }
 }

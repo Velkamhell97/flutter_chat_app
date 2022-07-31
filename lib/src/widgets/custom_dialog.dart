@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../global/globals.dart';
+import '../models/models.dart';
 import '../styles/styles.dart';
 
 class CustomDialog extends StatelessWidget {
-  final DialogModel dialog;
+  final AppDialog dialog;
 
   const CustomDialog({Key? key, required this.dialog}) : super(key: key);
 

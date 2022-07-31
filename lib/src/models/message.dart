@@ -1,49 +1,169 @@
-class Message {
-  String? id;
-  String from;
-  String to;
-  String? text;
-  String? time;
-  String? image;
-  String? audio;
+import 'package:flutter/material.dart' show IconData;
+
+import '../models/app_enums.dart';
+
+abstract class Message {
+  final String id;
+  final String from;
+  final String to;
+  final String time;
+  MessageStatus status;
+  bool sender;
+  final bool unsent;
+
+  Message(
+    Map<String, dynamic> data,
+  ) : id     = data["_id"],
+      from   = data["from"],
+      to     = data["to"],
+      time   = data["time"],
+      sender = false,
+      status = MessageStatus.values.byName(data["status"]),
+      unsent = data["unsent"] ?? false;
+
+  String format() {
+    final message = this;
+
+    if(message is TextMessage){
+      return message.text;
+    } else if(message is AudioMessage) {
+      return 'Audio';
+    } else if(message is ImageMessage){
+      return 'Image';
+    } else if(message is VideoMessage) {
+      return 'Video';
+    } else if(message is FileMessage) {
+      return 'File';
+    }
+
+    return '';
+  }
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    if(json["image"] != null){
+      return ImageMessage(
+        text: json["text"],
+        filename: json["image"], 
+        tempUrl: json["tempUrl"],
+        data: json
+      );
+    } 
+
+    if(json["video"] != null){
+      return VideoMessage(
+        text: json["text"],
+        filename: json["video"], 
+        duration: json["duration"], 
+        tempUrl: json["tempUrl"],
+        data: json
+      );
+    } 
+
+    if(json["audio"] != null){
+      return AudioMessage(
+        filename: json["audio"],
+        duration: json["duration"], 
+        tempUrl: json["tempUrl"],
+        data: json
+      );
+    } 
+
+    if(json["file"] != null){
+      return FileMessage(
+        filename: json["file"],
+        tempUrl: json["tempUrl"],
+        duration: json["duration"],
+        data: json
+      );
+    } 
+    
+    return TextMessage(
+      text: json["text"],
+      data: json
+    );
+  }
+}
+
+abstract class MediaMessage extends Message {
+  final String filename;
   String? tempUrl;
-  bool read;
+  bool downloaded;
+  String path;
+  String? thumbnail; /// Unico que no necesita es el audio
+  bool exist;
 
-  Message({this.id, required this.from, required this.to, this.text, this.time, this.image, this.audio, this.tempUrl, this.read = false});
+  MediaMessage({
+    required this.filename,
+    this.tempUrl,
+    this.downloaded = false,
+    this.path = "",
+    this.thumbnail,
+    this.exist = true,
+    required Map<String, dynamic> data
+  }) : super(data);
+}
 
-  factory Message.fromJson(Map<String, dynamic> json) => Message(
-    id: json["_id"],
-    from: json["from"],
-    to: json["to"],
-    text: json["text"],
-    time: json["time"],
-    image: json["image"],
-    audio: json["audio"],
-    tempUrl: json["tempUrl"],
-    read: json["read"]
-  );
+class TextMessage extends Message {
+  final String text;
 
-  Message copyWith({String? text, String? image, String? audio, String? tempUrl}) => Message(
-    id: id,
-    from: from, 
-    to: to, 
-    text: text ?? this.text, 
-    time: time,
-    image: image ?? this.image,
-    audio: audio ?? this.audio,
-    tempUrl: tempUrl ?? this.tempUrl,
-    read: read
-  );
+  TextMessage({
+    required this.text,
+    required Map<String, dynamic> data
+  }) : super(data, );
+}
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'from': from,
-    'to': to,
-    'text': text,
-    'time': time,
-    'image': image,
-    'audio': audio,
-    'tempUrl': tempUrl,
-    'read': read
-  };
+class ImageMessage extends MediaMessage {
+  final String? text;
+
+  ImageMessage({
+    required String filename,
+    this.text,
+    String? tempUrl,
+    required Map<String, dynamic> data
+  }) : super(filename: filename, tempUrl: tempUrl, data: data);
+}
+
+class VideoMessage extends MediaMessage {
+  final String? text;
+  final int duration;
+
+  VideoMessage({
+    required String filename,
+    this.text,
+    required this.duration,
+    String? tempUrl,
+    required Map<String, dynamic> data
+  }) : super(filename: filename, tempUrl: tempUrl, data: data);
+}
+
+class AudioMessage extends MediaMessage {
+  final int duration;
+  Future<List<dynamic>?>? waveform;
+
+  AudioMessage({
+    required String filename,
+    required this.duration,
+    String? tempUrl,
+    this.waveform,
+    required Map<String, dynamic> data,
+  }) : super(filename: filename, tempUrl: tempUrl, data: data);
+}
+
+class FileMessage extends MediaMessage {
+  IconData? icon;
+  int bytes;
+  String mime;
+  int? duration;
+  Future<List<dynamic>?>? waveform;
+
+  FileMessage({
+    required String filename,
+    String? tempUrl,
+    this.icon,
+    this.mime = "image",
+    this.bytes = 1024,
+    this.duration,
+    this.waveform,
+    required Map<String, dynamic> data,
+  }) : super(filename: filename, tempUrl: tempUrl, data: data);
 }

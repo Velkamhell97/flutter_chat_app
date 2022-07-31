@@ -9,6 +9,8 @@
 
    <uses-permission android:name="android.permission.RECORD_AUDIO" />
    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+   <!-- <uses-sdk tools:overrideLibrary="com.arthenica.ffmpegkit.flutter, com.arthenica.ffmpegkit" /> -->
    
    <application
         android:label="chat_app"
@@ -16,7 +18,7 @@
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true" 
         android:requestLegacyExternalStorage="true"> <!--Para que funcione el 10.0.2.2-->
-        
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

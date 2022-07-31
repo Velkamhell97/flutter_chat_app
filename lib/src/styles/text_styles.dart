@@ -6,8 +6,23 @@ class TextStyles {
     fontWeight: FontWeight.w500
   );
 
+  static const link = TextStyle(
+    fontSize: 14,
+    color: Colors.blue
+  );
+
   static const button = TextStyle(
     fontSize: 16,
+  );
+
+  static const countryCode = TextStyle(
+    fontSize: 16,
+  );
+
+  static const sectionHeader = TextStyle(
+    fontSize: 18,
+    color: Colors.grey,
+    fontWeight: FontWeight.w600
   );
 
   static const body1 = TextStyle(
@@ -40,6 +55,23 @@ class TextStyles {
   static const formError = TextStyle(
     fontSize: 14,
     color: Colors.redAccent,
-    
+  );
+
+  static const messageTime = TextStyle(
+    fontSize: 12,
+    color: Color(0xff65B05B),
+  );
+
+  static const messageTimeWhite = TextStyle(
+    fontSize: 12,
+    color: Colors.white,
+  );
+
+  static const messageSent = TextStyle(
+    color: Colors.black,
+  );
+
+  static const messageUnsent = TextStyle(
+    color: Colors.red,
   );
 }

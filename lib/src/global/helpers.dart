@@ -1,18 +1,18 @@
-
 import 'package:intl/intl.dart';
 
-import 'sp.dart';
+import '../singlentons/sp.dart';
 
-class Helpers {
-  static final _prefs = SP();
-  
-  static String generateFileName(String prefix, String ext){
-    final fileId = _prefs.fileId;
+String generateFileName(String prefix, String ext){
+  final _prefs = SP();
 
-    final date = DateFormat('yyyyMMdd').format(DateTime.now());
-    final fileName = '$prefix-$date-$fileId.$ext';
+  final fileId = _prefs.fileId;
 
-    _prefs.fileId = fileId + 1;
-    return fileName;
-  }
+  final date = DateFormat('yyyyMMdd').format(DateTime.now());
+  final fileName = '$prefix-$date-$fileId.$ext';
+
+  _prefs.fileId = fileId + 1;
+  return fileName;
 }
+
+
+
