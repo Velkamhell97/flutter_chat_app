@@ -58,6 +58,10 @@ class NotificationsService {
 
     await _notifications.initialize(
       settings,
+      // onSelectNotification: (json) {
+      //   final payload = jsonDecode(json ?? '{}');
+      //   _notificationsStream.add(payload);
+      // },
       // onDidReceiveBackgroundNotificationResponse: onBackground,
       onDidReceiveNotificationResponse: (notification) {
         final payload = jsonDecode(notification.payload ?? '{}');

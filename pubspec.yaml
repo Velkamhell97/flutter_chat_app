@@ -63,7 +63,7 @@ dependencies:
   mime: ^1.0.2
   flutter_persistent_keyboard_height: ^1.0.5
   video_thumbnail: ^0.5.0
-  flutter_local_notifications: ^10.0.0-dev.17
+  flutter_local_notifications: ^10.0.0-dev.18
   rxdart: ^0.27.4
   pdfx: ^2.2.0
   open_file: ^3.2.1
