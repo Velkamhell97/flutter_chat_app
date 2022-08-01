@@ -169,12 +169,13 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
       };
 
       if (_appState == AppLifecycleState.paused) {
-        /// En background siempre notifica, solo aumenta el badge
+        /// En background siempre notifica, aumenta todos los valores unreads, last4, tiles
         socket.emitWithAck('message-unread', {...data, 'notify': true}, ack: (payload) {
           _user!.unreads[payload["id"]] = payload["count"];
           users.refresh(payload["id"]);
         });
       } else if (_appState == AppLifecycleState.resumed) {
+        /// Fuera del chat siempre aumenta todos los valores unreads, last4, tiles
         if (to == null || to != message.from) {
           /// En home o en otro chat aumenta el badge, notifica solo si esta en otro chat
           final notify = to != null && to != message.from;
@@ -188,7 +189,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
             users.refresh(payload["id"]);
           });
         } else {
-          /// En el mismo chat no aumenta el badge
+          /// En el mismo chat no aumenta ninguno de los valores unread, last4, tiles, solo el last
           await messages.addMessage(message: message, sender: false);
           socket.emit('message-read', message.id);
           users.refresh(null);
