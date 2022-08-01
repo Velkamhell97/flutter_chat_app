@@ -28,6 +28,7 @@ class ErrorResponse {
 
     if(e is DioError) {
       if(e.response != null){
+        debugPrint(e.response?.data);
         return ErrorResponse.fromJson(e.response!.data);
       } else {
         if(e.type == DioErrorType.cancel){

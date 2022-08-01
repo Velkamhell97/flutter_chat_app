@@ -113,6 +113,33 @@ class FadeInSlideLeftOutRouteBuilder<T> extends PageRouteBuilder<T> {
   }
 }
 
+class ZoomInSlideLeftOutRouteBuilder<T> extends PageRouteBuilder<T> {
+  final Widget child;
+
+  ZoomInSlideLeftOutRouteBuilder({
+    required this.child
+  }) : super(pageBuilder: (context, animation, secondaryAnimation) => child);
+
+  /// Solo se aplica la secondaryAnimation si la siguiente ruta es un SlideLeftIn 
+  @override
+  bool canTransitionTo(TransitionRoute nextRoute) {
+    return nextRoute is SlideLeftInRouteBuilder;
+  }
+
+  static const _zoom = ZoomPageTransitionsBuilder();
+
+  /// Para utilizar el efecto del material pero sin la secondary animation
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    final position = secondaryAnimation.drive(_kToLeftTween);
+
+    return SlideTransition(
+      position: position,
+      child: _zoom.buildTransitions(this, context, animation, secondaryAnimation, child),
+    );
+  }
+}
+
 class MaterialZoomPageRoute<T> extends PageRoute<T> {
   final WidgetBuilder builder;
 

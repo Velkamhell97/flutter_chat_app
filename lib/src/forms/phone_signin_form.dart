@@ -1,3 +1,5 @@
+import 'package:chat_app/src/pages/auth/code_confirm_page.dart';
+import 'package:chat_app/src/widgets/transitions/page_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,7 +51,9 @@ class _PhoneSigninFormState extends State<PhoneSigninForm> {
     /// se muestre apenas entre a la otra pantalla, o en la otra pantalla apenas se entre mostrar
     /// ese dialog personalizado
     if(mounted){
-      Navigator.of(context).pushNamed('/code-confirmation', arguments: form);
+      // Navigator.of(context).pushNamed('/code-confirmation', arguments: form);
+      final route = SlideLeftInRouteBuilder(child: CodeConfirmPage(form: form));
+      Navigator.of(context).push(route);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Verification code was sent to ${form.phone["number"]}'))

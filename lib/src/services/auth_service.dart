@@ -156,7 +156,7 @@ class AuthService {
       } 
 
       /// Cuando la ruta comienza con http o https, dio ignora el baseUrl
-      final route = '$_host/$signupRoute';
+      final route = '$_host/$signupRoute/${user!.uid}';
       final options = Options(headers: {'x-token': token});
       final formData = FormData.fromMap(data);
 

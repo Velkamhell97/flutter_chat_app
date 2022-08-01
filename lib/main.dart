@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
@@ -33,7 +34,7 @@ Future<void> onBackgroundTerminated(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.production));
+  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.development));
 
   await Firebase.initializeApp();
 
@@ -56,6 +57,13 @@ void main() async {
   await SP().init();
   
   await LocalesService().init();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      // statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.dark
+    ),
+  );
 
   runApp(AppState(payload: payload));
 }
@@ -201,7 +209,11 @@ class _MyAppState extends State<MyApp> {
         appBarTheme: const AppBarTheme(
           foregroundColor: Colors.black,
           backgroundColor: Colors.white,
-          elevation: 0.0
+          elevation: 0.0,
+          // systemOverlayStyle: SystemUiOverlayStyle(
+          //   statusBarIconBrightness: Brightness.dark,
+          //   statusBarBrightness: Brightness.dark,
+          // )
         ),
       ),
   
@@ -228,7 +240,9 @@ class _MyAppState extends State<MyApp> {
         '/register'          : (_) => const RegisterPage(),
         '/reset-password'    : (_) => const ResetPasswordPage(),
         '/phone-signin'      : (_) => const PhoneSigninPage(),
-      //  '/code-confirmation' : (_) => const CodeConfirmPage(),
+        /// Podemos declarar algunas rutas que no reciben parametros para utiliza el popUntilRoute
+        /// si quisieramos usar esta que recibe un parametro nombrada, utilizar el onGenerateRoute
+        // '/code-confirmation' : (_) => const CodeConfirmPage(),
         '/new-user'          : (_) => const NewUserPage(),
       
         /// Si se abrio con una notificacion se le pasa el payload, no se utiliza como initial
@@ -249,31 +263,32 @@ class _MyAppState extends State<MyApp> {
       /// los animations en una ruta para la transicion de entrada o salida, se aplicara la misma transicion
       /// independiente desde donde se llegue a esa pestaña, lo cual puede que sea lo ideal en la mayoria de casos
       /// pero aqui se haran transiciones personalizadas de entrada y salida
-      // onGenerateRoute: (settings) {
-      //   switch (settings.name) {
-      //     case '/auth':
-      //       return MaterialPageRoute(builder: (_) => const AuthPage());
-      //     case '/login':
-      //       return CupertinoPageRoute(builder: (_) => const LoginPage());
-      //     case '/register':
-      //       final email = settings.arguments as String?;
-      //       return CupertinoPageRoute(builder: (_) => RegisterPage(email: email));
-      //     case '/reset-password':
-      //       final email = settings.arguments as String?;
-      //       return SlideInRouteBuilder(child: ResetPasswordPage(email: email));
-      //     case '/phone-signin':
-      //       const child = PhoneSigninPage();
-      //       return PageRouteBuilder(pageBuilder: (_, opacity, __) => FadeTransition(opacity: opacity, child: child));
-      //     case '/code-confirmation':
-      //       return CupertinoPageRoute(builder: (_) => const CodeConfirmPage());
-      //     case '/new-user':
-      //       return CupertinoPageRoute(builder: (_) => const NewUserPage());
-      //     case '/users':
-      //       return MaterialPageRoute(builder: (_) => UsersPage(appLaunchPayload: widget.payload));
-      //     default:
-      //       return MaterialPageRoute(builder: (_) => const AuthPage());
-      //   }
-      // },
+      //onGenerateRoute: (settings) {
+        //switch (settings.name) {
+          // case '/auth':
+          //   return MaterialPageRoute(builder: (_) => const AuthPage());
+          // case '/login':
+          //   return CupertinoPageRoute(builder: (_) => const LoginPage());
+          // case '/register':
+          //   final email = settings.arguments as String?;
+          //   return CupertinoPageRoute(builder: (_) => RegisterPage(email: email));
+          // case '/reset-password':
+          //   final email = settings.arguments as String?;
+          //   return SlideInRouteBuilder(child: ResetPasswordPage(email: email));
+          // case '/phone-signin':
+          //   const child = PhoneSigninPage();
+          //   return PageRouteBuilder(pageBuilder: (_, opacity, __) => FadeTransition(opacity: opacity, child: child));
+          // case '/code-confirmation':
+          //   final form = settings.arguments as AuthFormProvider;
+          //   return CupertinoPageRoute(builder: (_) => CodeConfirmPage(form: form));
+          // case '/new-user':
+          //   return CupertinoPageRoute(builder: (_) => const NewUserPage());
+          // case '/users':
+          //   return MaterialPageRoute(builder: (_) => UsersPage(appLaunchPayload: widget.payload));
+          // default:
+          //   return MaterialPageRoute(builder: (_) => const AuthPage());
+        //}
+      //},
     );
   }
 }

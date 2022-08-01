@@ -81,8 +81,9 @@ class LoginFooter extends StatelessWidget {
                   child: PhoneButton(
                     onPress: form.loading ? null : () {
                       form.error = null;
-                      const child = PhoneSigninPage();
-                      Navigator.of(context).push(MaterialZoomPageRoute(builder: (_) => child));
+                      // Navigator.of(context).push(MaterialZoomPageRoute(builder: (_) => child));
+                      final route = ZoomInSlideLeftOutRouteBuilder(child: const PhoneSigninPage());
+                      Navigator.of(context).push(route);
                     }
                   )
                 ),
