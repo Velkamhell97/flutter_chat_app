@@ -18,6 +18,8 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
 
   Future<void> _reset(AuthFormProvider form) async {
     if(form.loading) return;
+
+    form.tokenSent = false;
     
     FocusScope.of(context).unfocus();
 
