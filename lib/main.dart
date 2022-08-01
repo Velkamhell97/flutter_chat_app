@@ -32,7 +32,7 @@ Future<void> onBackgroundTerminated(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.development));
+  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.production));
 
   await Firebase.initializeApp();
 
@@ -48,6 +48,7 @@ void main() async {
 
   await NotificationsService().init();
 
+  /// Se debe pensar en cuando se abra otra cuaenta, no guardara 
   debugPrint(await FirebaseMessaging.instance.getToken());
 
   FirebaseMessaging.onBackgroundMessage(onBackgroundTerminated);

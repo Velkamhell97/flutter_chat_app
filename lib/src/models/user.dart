@@ -49,6 +49,7 @@ class User {
       email: json["email"],
       phone: json["phone"],
       avatar: json["avatar"],
+      token: json["token"],
       method: AuthMethod.values.byName(json["method"] ?? "email"),
       verified: json["verified"] ?? false,
       online: json["online"] ?? false,

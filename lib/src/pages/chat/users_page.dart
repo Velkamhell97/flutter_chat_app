@@ -42,29 +42,25 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     _initServices();
-    
+
     _player.setSourceAsset('audios/incoming.mp3');
-    
+
     socket.connect(AuthService.token!, onError: (_) {});
-    
+
     chat.message["from"] = _user?.uid;
 
     _getUsers();
 
-    if(_sp.fcmToken.isEmpty){
-      FirebaseMessaging.instance.getToken().then((token) {
-        auth.updateUser({'token':token});
-        _sp.fcmToken = token ?? '';
-      });
-    }
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) async { 
-      if(widget.appLaunchPayload != null){
+    _validateToken();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.appLaunchPayload != null) {
+        _listenForMessages();
         _onAppLaunchDetails();
       } else {
         final storagePermissions = await context.read<PermissionsService>().checkStoragePermissions();
 
-        if(!storagePermissions){
+        if (!storagePermissions) {
           await Future.delayed(const Duration(milliseconds: 200));
 
           /// Podria hacerse manualmente con el showGeneralDialog
@@ -101,7 +97,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
   void _getUsers() {
     users.getUsers().then((_) {
       socket.on('user-connect', (id) {
-        if(_user!.uid != id) {
+        if (_user!.uid != id) {
           users.connect(id);
         }
       });
@@ -110,13 +106,26 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
     });
   }
 
+  void _validateToken() {
+    final usertoken = auth.user!.token;
+    final sptoken = _sp.fcmToken;
+
+    if (sptoken.isEmpty || usertoken != sptoken) {
+      // print('Update token');
+      FirebaseMessaging.instance.getToken().then((token) {
+        auth.updateUser({'token': token});
+        _sp.fcmToken = token ?? '';
+      });
+    }
+  }
+
   void _onAppLaunchDetails() {
     final payload = jsonDecode(widget.appLaunchPayload!);
-    
+
     final user = User.fromJson(payload);
-    
+
     final route = CupertinoPageRoute(builder: (_) => ChatPage(receiver: user));
-    
+
     Navigator.of(context).push(route);
   }
 
@@ -128,48 +137,57 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
       // print('message');
       final message = Message.fromJson(json["message"]);
 
-      if(message is MediaMessage){
-        final error = await files.downloadFile(message);
+      if (message is MediaMessage) {
+        /// Si no tiene permisos no deja descargar media, se podria almacenar en una variable y utilizar
+        /// el didChangeDepedencies para saber si quitaron los permisos, por ahora se dejara asi
+        final storagePermissions = await context.read<PermissionsService>().checkStoragePermissions();
 
-        if(error != null){
-          dialogs.showSnackBar(error.message);
-          return; 
+        if (!storagePermissions) {
+          await Future.delayed(const Duration(milliseconds: 200));
+          dialogs.showAppDialog(dialog: AppDialog.storagePermissionDialog);
+        } else {
+          final error = await files.downloadFile(message);
+
+          if (error != null) {
+            dialogs.showSnackBar(error.message);
+            return;
+          }
         }
       }
 
       _user!.latest[message.from] = json["last"];
 
       final to = chat.message["to"];
-      
+
       final data = {
-        "userId": message.to, 
-        "senderId": message.from, 
-        "messageId": message.id, 
+        "userId": message.to,
+        "senderId": message.from,
+        "messageId": message.id,
         "text": json["last"],
-        "name": json["name"], 
+        "name": json["name"],
         "avatar": json["avatar"]
       };
 
-      if(_appState == AppLifecycleState.paused){
+      if (_appState == AppLifecycleState.paused) {
         /// En background siempre notifica, solo aumenta el badge
-        socket.emitWithAck('message-unread', {...data, 'notify':true}, ack: (payload) {
+        socket.emitWithAck('message-unread', {...data, 'notify': true}, ack: (payload) {
           _user!.unreads[payload["id"]] = payload["count"];
           users.refresh(payload["id"]);
         });
-      } else if(_appState == AppLifecycleState.resumed) {
-        if(to == null || to != message.from){
+      } else if (_appState == AppLifecycleState.resumed) {
+        if (to == null || to != message.from) {
           /// En home o en otro chat aumenta el badge, notifica solo si esta en otro chat
           final notify = to != null && to != message.from;
 
-          socket.emitWithAck('message-unread', {...data, 'notify':notify}, ack: (payload) {
-            if(to == null) _player.resume();
+          socket.emitWithAck('message-unread', {...data, 'notify': notify}, ack: (payload) {
+            if (to == null) _player.resume();
 
             debugPrint('counter: ${payload["count"]}');
 
             _user!.unreads[payload["id"]] = payload["count"];
             users.refresh(payload["id"]);
           });
-        } else { 
+        } else {
           /// En el mismo chat no aumenta el badge
           await messages.addMessage(message: message, sender: false);
           socket.emit('message-read', message.id);
@@ -181,7 +199,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
     /// No se ejecuta cada imagen multiple se sube por independiente y dispara el incoming-message
     // socket.on('incoming-messages', (json) async { ... });
   }
-  
+
   void _logout() {
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
     auth.signout();
@@ -202,12 +220,8 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
         // systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
         title: Text(_user?.name ?? 'User'),
         leading: ValueListenableBuilder<bool>(
-          valueListenable: socket.online,
-          builder: (_, online, __) => Icon(
-            online ? Icons.check_circle : Icons.offline_bolt, 
-            color: online ? Colors.white : Colors.redAccent
-          )
-        ),
+            valueListenable: socket.online,
+            builder: (_, online, __) => Icon(online ? Icons.check_circle : Icons.offline_bolt, color: online ? Colors.white : Colors.redAccent)),
         actions: [IconButton(onPressed: _logout, icon: const Icon(Icons.exit_to_app))],
       ),
 
@@ -233,7 +247,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
             physics: const BouncingScrollPhysics(),
             separatorBuilder: (context, index) => const Divider(thickness: 1),
             itemCount: users.length,
-            itemBuilder: (_, index)  {
+            itemBuilder: (_, index) {
               final user = users[index];
 
               return UserTile(
