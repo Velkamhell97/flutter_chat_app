@@ -1,21 +1,20 @@
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../models/models.dart';
-import '../../providers/providers.dart';
 import '../../styles/styles.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/services.dart';
+import '../../models/error_response.dart';
 import '../../pages/auth/auth.dart';
-import '../transitions/transitions.dart';
+import '../transitions/page_routes.dart';
 import 'auth.dart';
 
 class LoginFooter extends StatelessWidget {
   const LoginFooter({Key? key}) : super(key: key);
 
-  Future<void> _googleSingin(BuildContext context, AuthFormProvider form) async {
+  Future<void> _googleSingin(BuildContext context, AuthProvider form) async {
     form.error = null;
 
     final dialogs = context.read<DialogsService>();
@@ -57,7 +56,7 @@ class LoginFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, __) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -98,6 +97,9 @@ class LoginFooter extends StatelessWidget {
               ],
             ),
             
+            ///----------------------------------
+            /// Spacer
+            ///----------------------------------
             const Spacer(),
 
             ///----------------------------------
@@ -129,7 +131,7 @@ class RegisterFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<AuthFormProvider, bool>(
+    return Selector<AuthProvider, bool>(
       selector: (_, model) => model.loading,
       builder: (_, loading, __) {
         return Align(
@@ -155,7 +157,7 @@ class FooterBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<AuthFormProvider, bool>(
+    return Selector<AuthProvider, bool>(
       selector: (_, model) => model.loading,
       builder: (_, loading, __) => TextButton(
         onPressed: loading ? null : onPressed,
@@ -169,7 +171,7 @@ class FooterBackButton extends StatelessWidget {
 class CodeConfirmationFooter extends StatelessWidget {
   const CodeConfirmationFooter({Key? key}) : super(key: key);
 
-  Future<void> _onCodeAutoFill(BuildContext context, PhoneAuthCredential credentials, AuthFormProvider form) async {
+  Future<void> _onCodeAutoFill(BuildContext context, PhoneAuthCredential credentials, AuthProvider form) async {
     form.smsCode = credentials.smsCode;
     
     final auth = context.read<AuthService>();
@@ -187,7 +189,7 @@ class CodeConfirmationFooter extends StatelessWidget {
     }
   }
 
-  void _onCodeSent(BuildContext context, String verificationId, int? resendingToken, AuthFormProvider form){
+  void _onCodeSent(BuildContext context, String verificationId, int? resendingToken, AuthProvider form){
     form.phone["verificationId"] = verificationId;
     form.phone["resendToken"] = resendingToken.toString();
     
@@ -200,7 +202,7 @@ class CodeConfirmationFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, __) {
         return Column(
           children: [

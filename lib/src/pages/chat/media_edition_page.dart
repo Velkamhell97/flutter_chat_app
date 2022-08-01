@@ -1,17 +1,16 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
+import 'dart:io';
 import 'dart:ui';
 
 import '../../global/constants.dart';
 import '../../global/helpers.dart';
-import '../../providers/providers.dart';
-import '../../services/services.dart';
+import '../../providers/message_provider.dart';
+import '../../services/messages_service.dart';
 import '../../widgets/chat/chat.dart';
 
 class MediaEditionPage extends StatefulWidget {
@@ -145,7 +144,7 @@ class _MediaEditionPageState extends State<MediaEditionPage> {
   }
 
   Future<void> _sendMessage() async {
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
     final lenght = _files.length;
 
     final List<Map<String, dynamic>> messages = List.generate(lenght, (_) => {...chat.message});
@@ -195,7 +194,7 @@ class _MediaEditionPageState extends State<MediaEditionPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        final chat = context.read<ChatMessageProvider>();
+        final chat = context.read<MessageProvider>();
 
         if(chat.showEmojis) {
           chat.showEmojis = false;
@@ -246,10 +245,13 @@ class _MediaEditionPageState extends State<MediaEditionPage> {
             ),
       
             ///---------------------------------------
-            /// OPTIONS
+            /// OPTIONS (TAMBIEN FUNCIONA CON EL STACK)
             ///---------------------------------------
             Column(
               children: [
+                ///---------------------------------------
+                /// HEADER
+                ///---------------------------------------
                 MediaEditionHeader(
                   title: 'Media edition',
                   onEmoji: () async {
@@ -267,8 +269,14 @@ class _MediaEditionPageState extends State<MediaEditionPage> {
                   }
                 ),
       
+                ///---------------------------------------
+                /// SPACING
+                ///---------------------------------------
                 const Spacer(),
                 
+                ///---------------------------------------
+                /// FOOTER
+                ///---------------------------------------
                 MediaEditionFooter(
                   hintText: 'Media description',
                   onSend: _sendMessage,

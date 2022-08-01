@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'dart:async';
 
-import '../global/globals.dart';
-import '../services/services.dart';
+import '../global/enviorement.dart';
+import '../services/auth_service.dart';
 import '../models/models.dart';
 
 const String connectedUsersRoute = '/connected';
@@ -19,7 +19,6 @@ class UsersService {
   }
 
   final _host = Environment.apiHost;
-
   final _dio = Dio();
 
   List<User> users = [];
@@ -43,6 +42,7 @@ class UsersService {
       final usersResponse = UsersResponse.fromJson(response.data);
 
       users = usersResponse.users;
+
       _usersStreamController.add(users);
     } catch (e) {
       final error = ErrorResponse.fromObject(e);
@@ -64,6 +64,7 @@ class UsersService {
     _usersStreamController.add(users);
   }
 
+  /// Actualiza la lista, si se pasa el id, coloca ese usuario de primero
   void refresh([String? id]) {
     if(id != null){
       final user = users.firstWhere((element) => element.uid == id);

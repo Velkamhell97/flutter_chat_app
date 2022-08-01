@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/providers.dart';
-import '../../forms/forms.dart';
-import '../../services/services.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
+import '../../forms/register_form.dart';
 import '../../widgets/auth/auth.dart';
 
 class RegisterPage extends StatelessWidget {
@@ -51,7 +51,7 @@ class RegisterPage extends StatelessWidget {
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: ChangeNotifierProvider(
-                  create: (_) => AuthFormProvider(email: email),
+                  create: (_) => AuthProvider(email: email),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(

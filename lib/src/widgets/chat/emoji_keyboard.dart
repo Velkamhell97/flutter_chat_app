@@ -221,6 +221,9 @@ class _EmojiKeyboardState extends State<EmojiKeyboard> with SingleTickerProvider
             child: Stack(
               fit: StackFit.expand,
               children: [
+                ///-----------------------------------
+                /// EMOJIS LAYOUT
+                ///-----------------------------------
                 AnimatedOpacity(
                   duration: _duration,
                   opacity: _emojisOpen ? 1.0 : 0.0,
@@ -232,6 +235,9 @@ class _EmojiKeyboardState extends State<EmojiKeyboard> with SingleTickerProvider
                   ),
                 ),
                 
+                ///-----------------------------------
+                /// HIDE BACKGROUND
+                ///-----------------------------------
                 IgnorePointer(
                   child: AnimatedOpacity(
                     duration: _duration,

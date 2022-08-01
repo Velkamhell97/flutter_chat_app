@@ -17,17 +17,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // class ApiRoutes {
 //   static const String renewToken     = '/api/auth/renew-token';
 //   static const String login          = '/api/auth/login';
-//   static const String signinPhone    = '/api/auth/signin-phone';
-//   static const String signinGoogle   = '/api/auth/signin-google';
-//   static const String forgotPassword = '/api/auth/forgot-password';
-//   static const String verifyEmail    = '/api/auth/verify-email';
-//   static const String resetPassword  = '/api/auth/reset-password';
+//   ↓↓↓ Next routes
+// }
 
-//   static const String users        = '/api/users';
-//   static const String getUsers     = '/api/users/connected';
-//   static const String getMessages  = '/api/users/messages';
-//   static const String uploadUnread = '/api/users/unread';
-//   static const String uploadFile   = '/api/uploads/media';
+/// Forma 4: los enums permiten crear constantes y ademas encapsularlas, sin embargo, se debe entender el
+/// contexto de los enums, los enums suelen utilizarse cuando se intenta diferencias diferentes estados
+/// de un objeto en comun, para el caso de las rutas, no tienen mucho significado ya que las rutas son
+/// meras constantes, que nunca se evaluaran o se tendra la condicion if..else / switch para realizar
+/// diferentes acciones en base al enum, por esto no serian los mas ideales a utilzar
+// enum ApiRoutes {
+//   login('/api/auth/login');
+//   ↓↓↓ Next routes
+//
+//   final String value;
+//   const ApiRoutes(this.value);
 // }
 
 class AppFolder {
@@ -36,23 +39,10 @@ class AppFolder {
   static const thumbnailsDirectory = 'storage/emulated/0/FlutterChat/thumbnails';
 }
 
-/// Forma 4: los enums permiten crear constantes y ademas encapsularlas, sin embargo, se debe entender el 
-/// contexto de los enums, los enums suelen utilizarse cuando se intenta diferencias diferentes estados
-/// de un objeto en comun, para el caso de las rutas, no tienen mucho significado ya que las rutas son
-/// meras constantes, que nunca se evaluaran o se tendra la condicion if..else / switch para realizar
-/// diferentes acciones en base al enum, por esto no serian los mas ideales a utilzar 
-// enum ApiRoutes {
-//   login('/api/auth/login');
-//   // ↓↓↓ Next routes
-
-//   final String value;
-//   const ApiRoutes(this.value);
-// }
-
-final Map<String, IconData> mimeTypeToIconDataMap = <String, IconData>{
-  'image' : FontAwesomeIcons.fileImage,
-  'video' : FontAwesomeIcons.fileVideo,
-  'audio' : FontAwesomeIcons.fileAudio,
+const Map<String, IconData> mimeTypeToIconDataMap = <String, IconData>{
+  'image': FontAwesomeIcons.fileImage,
+  'video': FontAwesomeIcons.fileVideo,
+  'audio': FontAwesomeIcons.fileAudio,
   'application/pdf': FontAwesomeIcons.filePdf,
   'application/msword': FontAwesomeIcons.fileWord,
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': FontAwesomeIcons.fileWord,

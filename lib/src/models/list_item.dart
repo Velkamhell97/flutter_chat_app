@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/models.dart';
 import '../styles/styles.dart';
+import '../models/country.dart';
 
 /// Implementacion propuesta por el cookbook de flutter, tambien se podria haber hecho una condicion
 /// para devolver un widget u otro

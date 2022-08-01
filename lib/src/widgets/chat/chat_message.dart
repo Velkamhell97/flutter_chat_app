@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 import 'dart:ui';
 import 'dart:io';
 
-import '../../providers/providers.dart';
-import '../../models/models.dart';
-import '../../services/services.dart';
 import '../../styles/styles.dart';
 import '../../extensions/extensions.dart';
-import '../../pages/chat/chat.dart';
-import '../transitions/transitions.dart';
-import '../widgets.dart';
+import '../../providers/audio_provider.dart';
+import '../../services/services.dart';
+import '../../models/models.dart';
+import '../../pages/chat/media_viewer_page.dart';
+import '../transitions/page_routes.dart';
+import '../painters.dart';
 
 class ChatMessage extends StatelessWidget {
   final Message message;
@@ -125,8 +125,14 @@ class _MessageStatus extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ///-----------------------------------
+            /// TIME
+            ///-----------------------------------
             Text(message.time, style: style),
 
+            ///-----------------------------------
+            /// ICON
+            ///-----------------------------------
             (!message.sender)
               ? const SizedBox.shrink()
               : Icon(icon, size: _iconSize, color: color)
@@ -453,6 +459,9 @@ class _FileTile extends StatelessWidget {
 
     return Stack(
       children: [
+        ///-----------------------------------
+        /// FILE LAYOUT
+        ///-----------------------------------
         (!message.exist) 
           ? Row(
             children: const [
@@ -464,6 +473,9 @@ class _FileTile extends StatelessWidget {
           : Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              ///-----------------------------------
+              /// THUMBNAIL, LOADING AND ICON-NAME
+              ///-----------------------------------
               GestureDetector(
                 onTap: uploaded ? _openFile : null,
                 child: DecoratedBox(
@@ -475,6 +487,9 @@ class _FileTile extends StatelessWidget {
                     padding: const EdgeInsets.all(7.0),
                     child: Column(
                       children: [
+                        ///-----------------------------------
+                        /// THUMBNAIL
+                        ///-----------------------------------
                         if(message.thumbnail != null)
                           ConstrainedBox(
                             constraints: BoxConstraints(
@@ -497,6 +512,9 @@ class _FileTile extends StatelessWidget {
                             ),
                           ),
               
+                        ///-----------------------------------
+                        /// ICON AND NAME
+                        ///-----------------------------------
                         Row(
                           children: [
                             FaIcon(
@@ -511,7 +529,10 @@ class _FileTile extends StatelessWidget {
                             )
                           ],
                         ),
-              
+
+                        ///-----------------------------------
+                        /// LOADING BAR
+                        ///-----------------------------------
                         if(!uploaded)
                           const Padding(
                             padding: EdgeInsets.only(top: 5.0),
@@ -526,8 +547,14 @@ class _FileTile extends StatelessWidget {
                 ),
               ),
               
+              ///-----------------------------------
+              /// SPACING
+              ///-----------------------------------
               const SizedBox(height: 5.0),
-              
+
+              ///-----------------------------------
+              /// MESSAGE STATUS
+              ///-----------------------------------              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 3.0),
                 child: Row(
@@ -595,6 +622,9 @@ class __AudioTileState extends State<_AudioTile> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        ///-----------------------------------
+        /// MESSAGE LAYOUT
+        ///-----------------------------------
         (!_message.exist) 
           ? Row(
             children: const [
@@ -605,6 +635,9 @@ class __AudioTileState extends State<_AudioTile> with SingleTickerProviderStateM
           ) 
           : Row(
             children: [
+              ///-----------------------------------
+              /// PLAY BUTTON
+              ///-----------------------------------
               Material(
                 clipBehavior: Clip.antiAlias,
                 shape: const CircleBorder(),
@@ -619,12 +652,21 @@ class __AudioTileState extends State<_AudioTile> with SingleTickerProviderStateM
                 ),
               ),
               
+              ///-----------------------------------
+              /// SPACING
+              ///-----------------------------------
               const SizedBox(width: 10.0),
               
+              ///-----------------------------------
+              /// WAVEFORM AND DETAILS
+              ///-----------------------------------
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ///-----------------------------------
+                    /// WAVEFORM
+                    ///-----------------------------------
                     Flexible(
                       child: FutureBuilder<List<dynamic>?>(
                         future: _message.waveform,
@@ -666,6 +708,9 @@ class __AudioTileState extends State<_AudioTile> with SingleTickerProviderStateM
                       ),
                     ),
     
+                    ///-----------------------------------
+                    /// DURATION
+                    ///-----------------------------------
                     Text('$_time ●', style: const TextStyle(fontSize: 12, color: Color(0xff65B05B)))
                   ],
                 ),
@@ -673,6 +718,9 @@ class __AudioTileState extends State<_AudioTile> with SingleTickerProviderStateM
             ],
           ),
 
+        ///-----------------------------------
+        /// MESSAGE STATUS
+        ///-----------------------------------
         Positioned(
           bottom: 0,
           right: 7,
@@ -715,7 +763,7 @@ class _MediaTile extends StatelessWidget {
       final size = Size(info.image.width.toDouble(), info.image.height.toDouble());
 
       final route = FadeInRouteBuilder(
-        child: MediViewerPage(
+        child: MediaViewerPage(
           id: message.id,
           image: image,
           size: size,
@@ -737,6 +785,9 @@ class _MediaTile extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          ///-----------------------------------
+          /// IMAGE O THUMBNAIL VIDEO
+          ///-----------------------------------
           Hero(
             tag: message.id,
             createRectTween: (begin, end) => RectTween(begin: begin, end: end),
@@ -748,6 +799,9 @@ class _MediaTile extends StatelessWidget {
             ),
           ),
     
+          ///-----------------------------------
+          /// MESSAGE STATUS
+          ///-----------------------------------
           Positioned(
             bottom: 5.0,
             right: 5.0,
@@ -758,6 +812,9 @@ class _MediaTile extends StatelessWidget {
             ),
           ),
 
+          ///-----------------------------------
+          /// VIDEO PLAY BUTTON
+          ///-----------------------------------
           if(message is VideoMessage)
             const DecoratedBox(
               decoration: BoxDecoration(
@@ -770,6 +827,9 @@ class _MediaTile extends StatelessWidget {
               )
             ),
           
+          ///-----------------------------------
+          /// VIDEO DURATION
+          ///-----------------------------------
           if(message is VideoMessage)
             Positioned(
               top: 5.0,

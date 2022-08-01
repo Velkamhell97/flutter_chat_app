@@ -10,3 +10,4 @@ export 'error_response.dart';
 export 'app_enums.dart';
 export 'notification_tile.dart';
 export 'app_dialog.dart';
+export 'media_response.dart';

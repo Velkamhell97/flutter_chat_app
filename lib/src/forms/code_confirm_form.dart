@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../styles/styles.dart';
-import '../providers/providers.dart';
-import '../services/services.dart';
-import '../widgets/auth/auth.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import '../widgets/auth/auth_inputs.dart';
 
 class CodeConfirmForm extends StatelessWidget {
   const CodeConfirmForm({Key? key}) : super(key: key);
 
-  Future<void> _confirmSMS(BuildContext context, AuthFormProvider form) async {
+  Future<void> _confirmSMS(BuildContext context, AuthProvider form) async {
     if(form.loading) return;
     
     form.error = null;
@@ -41,10 +41,9 @@ class CodeConfirmForm extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, __) {
         return Form(
           /// Necesario usar otra key porque se comparte el mismo authFormProvider

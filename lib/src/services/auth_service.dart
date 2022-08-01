@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show debugPrint;
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 import 'dart:async';
 
 import '../models/models.dart';
-import '../global/globals.dart';
+import '../global/enviorement.dart';
 
 /// Forma de declarar variables globales, declarlas como top-leve-constants
 const String renewTokenRoute     = '/renew-token';
@@ -28,10 +28,9 @@ class AuthService {
     _dio.close();
   }
 
-  final _host = Environment.apiHost;
-
-  final _dio = Dio();
   final _googleSignin = GoogleSignIn(scopes: ['email']);
+  final _host = Environment.apiHost;
+  final _dio = Dio();
 
   User? user; /// Se podrian dejar estatico como firebase
   CancelToken _cancelToken = CancelToken(); 

@@ -19,7 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   late final AuthService auth;
   late final MessagesService messages;
   late final SocketsService socket;
-  late final ChatMessageProvider chat;
+  late final MessageProvider chat;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _ChatPageState extends State<ChatPage> {
     auth = Provider.of<AuthService>(context, listen: false);
     messages = Provider.of<MessagesService>(context, listen: false);
     socket = Provider.of<SocketsService>(context, listen: false);
-    chat = Provider.of<ChatMessageProvider>(context, listen: false);
+    chat = Provider.of<MessageProvider>(context, listen: false);
     final users = Provider.of<UsersService>(context, listen: false);
 
     chat.message["to"] = widget.receiver.uid;
@@ -74,7 +74,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return  WillPopScope(
       onWillPop: () async {
-        final chat = context.read<ChatMessageProvider>();
+        final chat = context.read<MessageProvider>();
 
         if(chat.showEmojis) {
           chat.showEmojis = false;
@@ -188,6 +188,9 @@ class _ChatPageState extends State<ChatPage> {
                   )
                 ),
                     
+                ///---------------------------------
+                /// DIVIDER
+                ///---------------------------------
                 /// Opcion 1, la opcion 2 es el boxShadows y la 3 el cambio del fondo de la lista
                 const Divider(thickness: 0.9, height: 0.5),
                     

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/providers.dart';
 import '../../styles/styles.dart';
-import '../../forms/forms.dart';
-import '../../services/services.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
+import '../../forms/reset_password_form.dart';
 import '../../widgets/auth/auth.dart';
 
 class ResetPasswordPage extends StatelessWidget {
@@ -27,7 +27,7 @@ class ResetPasswordPage extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.white,
           body: ChangeNotifierProvider(
-            create: (_) => AuthFormProvider(email: email),
+            create: (_) => AuthProvider(email: email),
             child: SafeArea(
               child: SizedBox.expand(
                 child: Padding(
@@ -57,6 +57,9 @@ class ResetPasswordPage extends StatelessWidget {
                       ///-------------------------------------
                       const ResetPasswordForm(),
                       
+                      ///-------------------------------------
+                      /// SPACING
+                      ///-------------------------------------
                       const Spacer(),
                       
                       ///-------------------------------------

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/services.dart';
 import '../styles/styles.dart';
-import '../providers/providers.dart';
-import '../widgets/auth/auth.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import '../widgets/auth/user_avatar.dart';
 
 class NewUserForm extends StatelessWidget {
   const NewUserForm({Key? key}) : super(key: key);
 
   static const _message = 'Ingresa tu nombre y la foto que desees que aparezca en tu perfil';
 
-  Future<void> _save(BuildContext context, AuthFormProvider form) async {
+  Future<void> _save(BuildContext context, AuthProvider form) async {
     if(form.loading) return;
 
     FocusScope.of(context).unfocus();
@@ -33,7 +33,7 @@ class NewUserForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (_, form, __){
         return Form(
           key: form.key,
@@ -47,6 +47,9 @@ class NewUserForm extends StatelessWidget {
                 onAvatarChanged: (avatar) => form.body["avatar"] = avatar,
               ),
 
+              ///---------------------------
+              /// Message
+              ///---------------------------
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
                 child: Text(_message, style: TextStyles.body2),

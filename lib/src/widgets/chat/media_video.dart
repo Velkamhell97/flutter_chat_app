@@ -96,6 +96,7 @@ class _MediaVideoState extends State<MediaVideo> with AutomaticKeepAliveClientMi
   Widget build(BuildContext context) {
     super.build(context);
 
+    /// Se podria pasar esta logica al didChangeDependencies
     final Size size = MediaQuery.of(context).size;
 
     if(widget.file != null){
@@ -108,6 +109,9 @@ class _MediaVideoState extends State<MediaVideo> with AutomaticKeepAliveClientMi
     return Stack(
       alignment: Alignment.center,
       children: [
+        ///-----------------------------------
+        /// VIDEO THUMBNAIL HERO
+        ///-----------------------------------
         if(widget.asset != null)
           Center(
             child: Hero(
@@ -117,6 +121,9 @@ class _MediaVideoState extends State<MediaVideo> with AutomaticKeepAliveClientMi
             ),
           ),
 
+        ///-----------------------------------
+        /// VIDEO
+        ///-----------------------------------
         if(videoReady)
           GestureDetector(
             onTap: _toggle,
@@ -126,6 +133,9 @@ class _MediaVideoState extends State<MediaVideo> with AutomaticKeepAliveClientMi
             )
           ),
 
+        ///-----------------------------------
+        /// PLAY-PAUSE BUTTON
+        ///-----------------------------------
         AnimatedOpacity(
           duration: kThemeAnimationDuration,
           opacity: _playing ? 0.0 : 1.0,

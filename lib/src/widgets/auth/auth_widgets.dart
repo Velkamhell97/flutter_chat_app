@@ -83,16 +83,4 @@ class TextDivider extends StatelessWidget {
   }
 }
 
-// class DividerClipper extends CustomClipper<Path> {
-
-//   @override
-//   Path getClip(Size size) {
-//     final path = Path();
-
-//     path.moveTo(x, y)
-//   }
-
-//   @override
-//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-// }
 

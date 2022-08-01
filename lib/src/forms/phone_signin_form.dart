@@ -1,14 +1,14 @@
-import 'package:chat_app/src/pages/auth/code_confirm_page.dart';
-import 'package:chat_app/src/widgets/transitions/page_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../models/models.dart';
-import '../services/services.dart';
 import '../styles/styles.dart';
-import '../providers/providers.dart';
-import '../widgets/auth/auth.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import '../models/error_response.dart';
+import '../pages/auth/code_confirm_page.dart';
+import '../widgets/auth/auth_inputs.dart';
+import '../widgets/transitions/page_routes.dart';
 
 class PhoneSigninForm extends StatefulWidget {
   const PhoneSigninForm({Key? key}) : super(key: key);
@@ -19,7 +19,7 @@ class PhoneSigninForm extends StatefulWidget {
 
 /// Se utiliza un stafull para el metodo mounted
 class _PhoneSigninFormState extends State<PhoneSigninForm> {
-  Future<void> _onCodeAutoFill(PhoneAuthCredential credentials, AuthFormProvider form) async {
+  Future<void> _onCodeAutoFill(PhoneAuthCredential credentials, AuthProvider form) async {
     form.smsCode = credentials.smsCode;
     
     final auth = context.read<AuthService>();
@@ -40,7 +40,7 @@ class _PhoneSigninFormState extends State<PhoneSigninForm> {
     }
   }
 
-  void _onCodeSent(String verificationId, int? resendingToken, AuthFormProvider form) {
+  void _onCodeSent(String verificationId, int? resendingToken, AuthProvider form) {
     form.loading = false;
 
     form.phone["verificationId"] = verificationId;
@@ -61,7 +61,7 @@ class _PhoneSigninFormState extends State<PhoneSigninForm> {
     }
   }
 
-  void _sendSMS(AuthFormProvider form) {
+  void _sendSMS(AuthProvider form) {
     if(form.loading) return;
                   
     form.error = null;
@@ -87,7 +87,7 @@ class _PhoneSigninFormState extends State<PhoneSigninForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, __) {
         return Form(
           key: form.key,

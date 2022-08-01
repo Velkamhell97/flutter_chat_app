@@ -23,7 +23,7 @@ class SP {
   String get fcmToken => _prefs.getString('fcmToken') ?? '';
   set fcmToken(String value) => _prefs.setString('fcmToken', value);
   
-  ///Para mostrar notificaciones o no si esta auth o no
+  ///Para mostrar notificaciones o no si esta auth o no (no utilizado)
   bool get loged => _prefs.getBool('loged') ?? false;
   set loged(bool value) => _prefs.setBool('loged', value);
 }

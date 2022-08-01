@@ -8,10 +8,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-// import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
 import 'package:provider/provider.dart';
 
-import 'src/global/globals.dart';
+import 'src/global/enviorement.dart';
 import 'src/services/services.dart';
 import 'src/singlentons/singlentons.dart';
 import 'src/models/models.dart';
@@ -23,7 +22,6 @@ import 'src/pages/chat/chat.dart';
 Future<void> onBackgroundTerminated(RemoteMessage message) async {
   final token = await const FlutterSecureStorage().read(key: 'token');
 
-
   if(token != null){
     final payload = jsonDecode(message.data["payload"]);
     final tiles = List<NotificationTile>.from(payload.map((tile) => NotificationTile.fromJson(tile)));
@@ -34,7 +32,7 @@ Future<void> onBackgroundTerminated(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.development));
+  await dotenv.load(fileName: Environment.getFileName(EnvironmentMode.production));
 
   await Firebase.initializeApp();
 
@@ -118,7 +116,7 @@ class AppState extends StatelessWidget {
           dispose: (_, model) => model.dispose(),
         ),
 
-        ChangeNotifierProvider(create: (_) => ChatMessageProvider())
+        ChangeNotifierProvider(create: (_) => MessageProvider())
       ],
       child: MyApp(payload: payload),
     );
@@ -165,7 +163,7 @@ class _MyAppState extends State<MyApp> {
     final auth = Provider.of<AuthService>(context, listen: false);
     final users = Provider.of<UsersService>(context, listen: false);
     final sockets = Provider.of<SocketsService>(context, listen: false);
-    final chat = Provider.of<ChatMessageProvider>(context, listen: false);
+    final chat = Provider.of<MessageProvider>(context, listen: false);
 
     final to = chat.message["to"];
 

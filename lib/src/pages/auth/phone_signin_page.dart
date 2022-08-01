@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/providers.dart';
-import '../../forms/forms.dart';
 import '../../styles/styles.dart';
+import '../../providers/auth_provider.dart';
+import '../../forms/phone_signin_form.dart';
 import '../../widgets/auth/auth.dart';
 
 class PhoneSigninPage extends StatelessWidget {
@@ -22,7 +22,7 @@ class PhoneSigninPage extends StatelessWidget {
         // resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: ChangeNotifierProvider(
-            create: (context) => AuthFormProvider(),
+            create: (context) => AuthProvider(),
             child: SizedBox.expand(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -51,6 +51,9 @@ class PhoneSigninPage extends StatelessWidget {
                     ///-------------------------------------
                     const PhoneSigninForm(),
 
+                    ///-------------------------------------
+                    /// SPACING
+                    ///-------------------------------------
                     const Spacer(),
                     
                     ///-------------------------------------

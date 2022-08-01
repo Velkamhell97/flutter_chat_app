@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/models.dart';
-import '../../providers/providers.dart';
-import '../auth/auth.dart';
-import 'chat.dart';
+import '../../models/user.dart';
+import '../../providers/message_provider.dart';
+import '../auth/user_avatar.dart';
+import 'emoji_keyboard.dart';
 
-
-///---------------------------------------------
-/// CHAT PAGE
-///---------------------------------------------
 class ChatHeader extends StatelessWidget {
   final User? user; //-por aguna razon un error al volver
 
@@ -31,6 +27,9 @@ class ChatHeader extends StatelessWidget {
             height: kToolbarHeight,
             child: Row(
               children: [
+                ///-----------------------------------
+                /// BACK ARROW
+                ///-----------------------------------
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(), 
                   icon: const Icon(Icons.arrow_back),
@@ -38,18 +37,33 @@ class ChatHeader extends StatelessWidget {
                   color: Colors.white,
                 ),
                   
+                ///-----------------------------------
+                /// SPACING
+                ///-----------------------------------
                 const SizedBox(width: 5.0),
       
+                ///-----------------------------------
+                /// AVATAR
+                ///-----------------------------------
                 UserAvatar(
                   url: user?.avatar,
                   text: user?.name ?? 'any',
                   radius: 20,
                 ),
                   
+                ///-----------------------------------
+                /// SPACING
+                ///-----------------------------------
                 const SizedBox(width: 10.0),
                   
+                ///-----------------------------------
+                /// NAME
+                ///-----------------------------------
                 Expanded(child: Text(user?.name ?? 'any', style: _titleStyle)),
                   
+                ///-----------------------------------
+                /// OPTIONS
+                ///-----------------------------------
                 IconButton(
                   onPressed: () {}, 
                   icon: const Icon(Icons.more_vert),
@@ -61,25 +75,6 @@ class ChatHeader extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-///---------------------------------------------
-/// MESSAGE TYPES
-///---------------------------------------------
-class AudioNotFound extends StatelessWidget {
-  const AudioNotFound({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: const [
-        Icon(Icons.error_outline, color: Colors.redAccent),
-        SizedBox(width: 10),
-        Text('Audio not found')
-      ],
     );
   }
 }
@@ -121,17 +116,32 @@ class MediaEditionHeader extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(_lr, top, _lr, 0.0),
         child: Row(
           children: [
+            ///-----------------------------------
+            /// BACK BUTTON
+            ///-----------------------------------
             BackButton(
               onPressed: () => Navigator.of(context).pop(),
               color: Colors.white,
             ),
 
+            ///-----------------------------------
+            /// SPACING
+            ///-----------------------------------
             const SizedBox(width: 10.0),
 
+            ///-----------------------------------
+            /// TITLE
+            ///-----------------------------------
             Text(title, style: _style),
 
+            ///-----------------------------------
+            /// SPACING
+            ///-----------------------------------
             const Spacer(),
 
+            ///-----------------------------------
+            /// CROP OPTION
+            ///-----------------------------------
             if(onCrop != null)
               IconButton(
                 color: Colors.white,
@@ -139,6 +149,9 @@ class MediaEditionHeader extends StatelessWidget {
                 icon: const Icon(Icons.crop)
               ),
 
+            ///-----------------------------------
+            /// EMOJI OPTION
+            ///-----------------------------------
             if(onEmoji != null)
               IconButton(
                 color: Colors.white,
@@ -146,6 +159,9 @@ class MediaEditionHeader extends StatelessWidget {
                 icon: const Icon(Icons.emoji_emotions_outlined)
               ),
 
+            ///-----------------------------------
+            /// PAINT OPTION
+            ///-----------------------------------
             if(onPaint != null)
               IconButton(
                 color: Colors.white,
@@ -176,17 +192,6 @@ class MediaEditionFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final MediaQueryData mq = MediaQuery.of(context);
-    // final bottom = mq.viewInsets.bottom + mq.padding.bottom;
-
-    // return TextField(
-    //   decoration: InputDecoration(
-    //     hintText: 'hola',
-    //     filled: true,
-    //     fillColor: Colors.white30
-    //   ),
-    // );
-
     return EmojiKeyboard(
       style: _hintStyle,
       cursorColor: Colors.white,
@@ -201,7 +206,7 @@ class MediaEditionFooter extends StatelessWidget {
       iconColor: Colors.white,
       backgroundColor: Colors.black38,
       onChanged: (text) {
-        context.read<ChatMessageProvider>().message["text"] = text;
+        context.read<MessageProvider>().message["text"] = text;
       },
       child: Align(
         alignment: const Alignment(0.9, 0.0),

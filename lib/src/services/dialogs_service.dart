@@ -1,7 +1,7 @@
-import 'package:chat_app/src/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 
 import '../models/app_dialog.dart';
+import '../widgets/custom_dialog.dart';
 
 class DialogsService {
   /// No muy utilizada, siempre se utiliza el ScaffoldMessenger
@@ -19,9 +19,6 @@ class DialogsService {
   /// Se manejara una instancia global del overlayEntry, porque muchas veces se desea cerrar desde 
   /// widgets superiores o antes de hacer pop
   OverlayEntry? _entry;
-
-  /// Funcion que se ejecutara antes de cerrar el overlay
-  Future<void>? Function()? entryCallback;
 
   bool get hasOverlay => _entry != null;
 
@@ -63,14 +60,9 @@ class DialogsService {
 
   /// Removemos el overlya y si hay un callback esperamos
   void removeOverlay([bool skipCallback = false]) async {
-    if(entryCallback != null && !skipCallback){
-      await entryCallback!();
-    }
-
     if(_entry != null){
       _entry!.remove();
       _entry = null;
-      entryCallback = null;
     }
   }
 }

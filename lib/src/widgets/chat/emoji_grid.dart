@@ -37,6 +37,7 @@ class _EmojiGridState extends State<EmojiGrid> {
       final lenght = category.emoji.length;
       final tiles = (lenght / 4).ceil();
 
+      ///Agreagamos el offset de cada categoria y luego el indice en el mapa
       _offsets.add(_offsets[i] + (tiles * _tileExtent) + _headerExtent);
       _indices[_offsets[i + 1]] = i;
     }
@@ -45,6 +46,7 @@ class _EmojiGridState extends State<EmojiGrid> {
       if(!_animating) {
         final offset = _indices.keys.firstWhere((element) => _scrollController.offset < element);
 
+        /// Si la categoria es diferente y no se esta animando, cambie de offset
         if(_categoryNotifier.value != _indices[offset] && !_animating){
           _categoryNotifier.value = _indices[offset]!;
         }
@@ -75,12 +77,18 @@ class _EmojiGridState extends State<EmojiGrid> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        ///-----------------------------------
+        /// CLOSE BUTTON
+        ///-----------------------------------
         IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
           color: Colors.white
         ),
 
+        ///-----------------------------------
+        /// EMOJI LIST
+        ///-----------------------------------
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
@@ -139,6 +147,9 @@ class _EmojiGridState extends State<EmojiGrid> {
           ),
         ),
 
+        ///-----------------------------------
+        /// EMOJI CATEGORIES
+        ///-----------------------------------
         Material(
           color: Colors.black54,
           child: ValueListenableBuilder<int>(

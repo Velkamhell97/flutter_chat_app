@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../extensions/extensions.dart';
-import '../providers/providers.dart';
 import '../styles/styles.dart';
-import '../services/services.dart';
+import '../extensions/string_apis.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
 
 class ResetPasswordForm extends StatefulWidget {
   const ResetPasswordForm({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class ResetPasswordForm extends StatefulWidget {
 /// Se utiliza un StateFull para utilizar el mounted y explicar un caso
 class _ResetPasswordFormState extends State<ResetPasswordForm> {
 
-  Future<void> _reset(AuthFormProvider form) async {
+  Future<void> _reset(AuthProvider form) async {
     if(form.loading) return;
 
     form.tokenSent = false;
@@ -51,7 +51,7 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, __) {
         return Form(
           key: form.key,
@@ -71,6 +71,9 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
                 validator: (value) => (value ?? '').isValidEmail ? null : 'Enter a valid email'
               ),
       
+              ///------------------------------------
+              /// Spacing
+              ///------------------------------------
               const SizedBox(height: 20.0),
       
               ///------------------------------------

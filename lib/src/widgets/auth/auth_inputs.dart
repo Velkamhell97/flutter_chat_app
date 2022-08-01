@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math';
 
-import '../../models/models.dart';
-import '../../singlentons/singlentons.dart';
 import '../../styles/styles.dart';
-import 'auth.dart';
+import '../../models/country.dart';
+import '../../singlentons/locales_service.dart';
+import 'countries_list.dart';
 
 ///---------------------------------
 /// PASSWORD INPUT

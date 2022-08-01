@@ -122,10 +122,6 @@ class _TimerButtonState extends State<TimerButton> {
 
   @override
   Widget build(BuildContext context) {
-    // if(widget.restart){
-    //   Future.microtask(_setTimer);
-    // }
-
     return ValueListenableBuilder<int>(
       valueListenable: _counterNotifier,
       builder: (_, seconds, __) {

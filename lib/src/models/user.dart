@@ -1,4 +1,4 @@
-import '../models/models.dart';
+import '../models/app_enums.dart';
 
 class User {
   final String uid;
@@ -33,11 +33,6 @@ class User {
     // this.pendings = const {}
   });
 
-  // void updatePendings(Map<String, dynamic> json) {
-  //   final entries = Map<String, dynamic>.from(json).entries;
-  //   pendings = {for(MapEntry<String, dynamic> entry in entries) entry.key: NotificationTile.fromJson(entry.value)};
-  // }
-
   /// Para facilitar comparaciones
   @override
   int get hashCode => Object.hash(uid, email);
@@ -48,9 +43,6 @@ class User {
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // final entries = Map<String, dynamic>.from(json["pendings"]).entries;
-    // print(json);
-
     return User(
       uid: json["uid"],
       name: json["name"],
@@ -69,16 +61,18 @@ class User {
 
   @override
   String toString() {
-    return """User(
- uid: $uid, 
- name: $name, 
- email: $email, 
- phone: $phone 
- avatar: $avatar, 
- method: $method, 
- verified: $verified, 
- online: $online, 
- google: $google
-)""";
+    return """
+    User(
+      uid: $uid, 
+      name: $name, 
+      email: $email, 
+      phone: $phone 
+      avatar: $avatar, 
+      method: $method, 
+      verified: $verified, 
+      online: $online, 
+      google: $google
+    )
+    """;
   }
 }

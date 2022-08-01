@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Se deja en una clase para acceder mediante ButtonStyles.
 class ButtonStyles {
   static final countryButton = ElevatedButton.styleFrom(
     primary: Colors.white,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Color, HSLColor;
 import 'dart:math' as math;
 
 extension StringApis on String {

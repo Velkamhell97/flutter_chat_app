@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/models.dart';
 import '../styles/styles.dart';
+import '../models/app_dialog.dart';
 
 class CustomDialog extends StatelessWidget {
   final AppDialog dialog;

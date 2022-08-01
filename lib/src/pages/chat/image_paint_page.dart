@@ -144,8 +144,6 @@ class _ImagePaintPageState extends State<ImagePaintPage> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    // print(_currentColor);
-
     return WillPopScope(
       onWillPop: () async {
         setState(() => _showCanvas = false);

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/providers.dart';
-import '../../forms/forms.dart';
-import '../../services/services.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
+import '../../forms/login_form.dart';
 import '../../widgets/auth/auth.dart';
 
 class LoginPage extends StatelessWidget {
@@ -52,7 +52,7 @@ class LoginPage extends StatelessWidget {
                 /// Si el child tiene un body scrollable, por defecto en true
                 hasScrollBody: false, 
                 child: ChangeNotifierProvider(
-                  create: (_) => AuthFormProvider(),
+                  create: (_) => AuthProvider(),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(

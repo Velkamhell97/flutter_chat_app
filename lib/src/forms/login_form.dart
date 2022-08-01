@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../extensions/extensions.dart';
-import '../providers/providers.dart';
-import '../services/services.dart';
 import '../styles/styles.dart';
-import '../models/models.dart';
-import '../pages/auth/auth.dart';
-import '../widgets/transitions/transitions.dart';
-import '../widgets/auth/auth.dart';
+import '../extensions/string_apis.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import '../models/app_enums.dart';
+import '../pages/auth/reset_password_page.dart';
+import '../widgets/transitions/page_routes.dart';
+import '../widgets/auth/auth_inputs.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({Key? key}) : super(key: key);
 
-  Future<void> _login(BuildContext context, AuthFormProvider form) async {
+  Future<void> _login(BuildContext context, AuthProvider form) async {
     if(form.loading) return;
 
     FocusScope.of(context).unfocus();
@@ -39,7 +39,7 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, __) {
         return Form(
           key: form.key,
@@ -59,6 +59,9 @@ class LoginForm extends StatelessWidget {
                 validator: (value) => (value ?? '').isValidEmail ? null : 'Enter a valid email'
               ),
       
+              ///------------------------------------
+              /// Spacing
+              ///------------------------------------
               const SizedBox(height: 20.0),
               
               ///------------------------------------
@@ -70,6 +73,9 @@ class LoginForm extends StatelessWidget {
                 hint: 'Password',
               ),
               
+              ///------------------------------------
+              /// Spacing
+              ///------------------------------------
               const SizedBox(height: 20.0),
               
               ///------------------------------------
@@ -98,6 +104,9 @@ class LoginForm extends StatelessWidget {
                 )
               ),
 
+              ///------------------------------------
+              /// Forgot Password Button
+              ///------------------------------------
               TextButton(
                 style: TextButton.styleFrom(splashFactory: NoSplash.splashFactory),
                 onPressed: form.loading ? null : ()  {
@@ -107,30 +116,6 @@ class LoginForm extends StatelessWidget {
                 },
                 child: const Text('Forgot Password ?')
               )
-
-              ///------------------------------------
-              /// Forgot Password
-              ///------------------------------------
-              // OverlayBuilder(
-              //   child: TextButton(
-              //     style: TextButton.styleFrom(splashFactory: NoSplash.splashFactory),
-              //     onPressed: form.loading ? null : ()  {
-              //       form.error = null; /// Como es un pop si volvemos el error aun aparecera
-              //       final child = ResetPasswordPage(email: form.body["email"]);
-              //       Navigator.of(context).push(SlideLeftInRouteBuilder(child: child));
-              //     }, 
-              //     child: const Text('Forgot Password ?')
-              //   ), 
-              //   overlayBuilder: (context) {
-              //     return SizedBox();
-              //   },
-              //   overlayTransitionBuilder: (context, animation, child) {
-              //     return SlideTransition(
-              //       position: Tween(begin: Offset(0.0, 1.0), end: Offset.zero).animate(animation),
-              //       child: child,
-              //     );
-              //   },
-              // )
             ],
           ),
         );

@@ -7,9 +7,9 @@ abstract class Message {
   final String from;
   final String to;
   final String time;
-  MessageStatus status;
-  bool sender;
-  final bool unsent;
+  MessageStatus status; /// Puede cambiar
+  bool sender; /// se asigna despues
+  final bool unsent; /// Para manejo de errores (solo local)
 
   Message(
     Map<String, dynamic> data,
@@ -20,24 +20,6 @@ abstract class Message {
       sender = false,
       status = MessageStatus.values.byName(data["status"]),
       unsent = data["unsent"] ?? false;
-
-  String format() {
-    final message = this;
-
-    if(message is TextMessage){
-      return message.text;
-    } else if(message is AudioMessage) {
-      return 'Audio';
-    } else if(message is ImageMessage){
-      return 'Image';
-    } else if(message is VideoMessage) {
-      return 'Video';
-    } else if(message is FileMessage) {
-      return 'File';
-    }
-
-    return '';
-  }
 
   factory Message.fromJson(Map<String, dynamic> json) {
     if(json["image"] != null){
@@ -89,7 +71,7 @@ abstract class MediaMessage extends Message {
   String? tempUrl;
   bool downloaded;
   String path;
-  String? thumbnail; /// Unico que no necesita es el audio
+  String? thumbnail; /// El unico que no necesita es el audio
   bool exist;
 
   MediaMessage({

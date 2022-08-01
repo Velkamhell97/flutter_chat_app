@@ -1,12 +1,10 @@
-import 'dart:async';
-import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:dio/dio.dart';
+import 'dart:typed_data';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -70,6 +68,7 @@ class NotificationsService {
     );
   }
 
+  /// Convierte una lista de bits en una imagen
   Future<ui.Image> _loadImage(Uint8List img) async {
     final Completer<ui.Image> completer = Completer();
 
@@ -79,6 +78,7 @@ class NotificationsService {
     return completer.future;
   }
 
+  /// Descargamos una imagen de una url y la redondeamos
   Future<String> _downloadAndSaveFile(String url, String fileName) async {
     final Directory directory = await getApplicationDocumentsDirectory();
     final String filePath = '${directory.path}/$fileName';
@@ -125,7 +125,6 @@ class NotificationsService {
 
       AndroidBitmap<Object> largeIcon;
 
-      /// Se podria mirar como hacer redonda la imagen
       if(tile.avatar != null){
         final largeIconPath = await _downloadAndSaveFile(tile.avatar!, 'largeIcon');
         largeIcon = FilePathAndroidBitmap(largeIconPath);
@@ -147,6 +146,7 @@ class NotificationsService {
       await _notifications.show(i, tile.name, tile.last4.last, notificationDetails1, payload: payload);
     }
 
+    /// Se necesita para mostrar las notificaciones en grupo
     final notificationsDetails3 = NotificationDetails(
         android: AndroidNotificationDetails(
       _channel.id,

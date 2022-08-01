@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:typed_data';
 
-import '../../widgets/transitions/transitions.dart';
+import '../../widgets/transitions/page_routes.dart';
 import 'chat.dart';
 
 class MediaPickerPage extends StatefulWidget {
@@ -198,6 +198,9 @@ class _MediaPickerPageState extends State<MediaPickerPage> {
                 ),
                 child: Stack(
                   children: [
+                    ///---------------------------------------
+                    /// MEDIA LIST
+                    ///---------------------------------------
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: ClipRRect(
@@ -237,6 +240,9 @@ class _MediaPickerPageState extends State<MediaPickerPage> {
                       ),
                     ),
     
+                    ///---------------------------------------
+                    /// MULTIPLE SEND BUTTON
+                    ///---------------------------------------
                     Positioned(
                       right: 25,
                       bottom: 16,
@@ -318,11 +324,17 @@ class _MediaAsset extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
+                ///---------------------------------------
+                /// THUMNAIL
+                ///---------------------------------------
                 Image.memory(
                   bytes,
                   fit: BoxFit.cover,
                 ),
                   
+                ///---------------------------------------
+                /// CONSECUTIVE BADGE
+                ///---------------------------------------
                 if(consecutive != null)
                   Align(
                     alignment: const Alignment(0.9, -0.9),
@@ -349,7 +361,10 @@ class _MediaAsset extends StatelessWidget {
                       ),
                     ),
                   ),
-            
+
+                ///---------------------------------------
+                /// VIDEO ICON
+                ///---------------------------------------
                 if(asset.type == AssetType.video)
                   const Align(
                     alignment: Alignment(0.9,0.95),

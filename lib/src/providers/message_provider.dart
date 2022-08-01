@@ -1,13 +1,15 @@
-import 'package:chat_app/src/widgets/overlay_builder.dart';
 import 'package:flutter/cupertino.dart';
 
-class ChatMessageProvider extends ChangeNotifier {
+import '../widgets/overlay_builder.dart';
+
+class MessageProvider extends ChangeNotifier {
   bool showSend = true;
 
   /// Puede cambiar su estado desde el widget, no notificamos con cada cambio, porque solo lo necesitamos
   /// cuando vamos a hacer el willScopePop
   bool showEmojis = false;
 
+  /// Para notificat sin crear un setter
   void notify(){
     notifyListeners();
   }
@@ -20,6 +22,7 @@ class ChatMessageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Cambia la animacion cuando se va a navegar
   OverlayType _overlayType = OverlayType.animated;
   OverlayType get overlayType => _overlayType;
   set overlayType(OverlayType overlayType) {
@@ -27,10 +30,10 @@ class ChatMessageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Siempre que se acceda a la pantalla de chat se crea un nuevo TextController, porque una vez se utiliza
+  /// uno ya queda deshabilitado
   TextEditingController _controller = TextEditingController();
-
   TextEditingController get controller => _controller;
-
   set controller(TextEditingController controller) {
     _controller.dispose();
     _controller = controller;

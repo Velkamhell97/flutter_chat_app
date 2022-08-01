@@ -91,6 +91,7 @@ class _MediaImageState extends State<MediaImage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     super.build(context);
 
+    /// Mejor pasarlo al didChangeDependencies
     final Size size = MediaQuery.of(context).size;
 
     return InteractiveViewer(
@@ -110,6 +111,9 @@ class _MediaImageState extends State<MediaImage> with SingleTickerProviderStateM
             /// Cuando hay una imagen de camara o de galeria
             fit: widget.fitScale == null ? StackFit.loose : StackFit.expand,
             children: [
+              ///-----------------------------------
+              /// MULTIPLE IMAGE FILE
+              ///-----------------------------------
               /// Si se seleccionan con multiples imagenes
               if(widget.heroTag == null)
                 SizedBox(
@@ -117,6 +121,9 @@ class _MediaImageState extends State<MediaImage> with SingleTickerProviderStateM
                   child: Image(image: widget.image),
                 ),
 
+              ///-----------------------------------
+              /// CAMERA OR GALLERY IMAGE
+              ///-----------------------------------
               if(widget.heroTag != null)
                 Hero(
                   tag: widget.heroTag!,
@@ -131,6 +138,9 @@ class _MediaImageState extends State<MediaImage> with SingleTickerProviderStateM
                   ),
                 ),
             
+              ///-----------------------------------
+              /// EMOJIS
+              ///-----------------------------------
               Positioned.fill(
                 child: LayoutBuilder(
                   builder: (context, constraints) {

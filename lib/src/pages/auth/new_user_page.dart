@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/providers.dart';
-import '../../forms/forms.dart';
-import '../../services/services.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/auth_service.dart';
+import '../../forms/new_user_form.dart';
 import '../../widgets/auth/auth.dart';
 
 class NewUserPage extends StatelessWidget {
@@ -26,8 +26,8 @@ class NewUserPage extends StatelessWidget {
         child: Scaffold(
           // resizeToAvoidBottomInset: false,
           body: SafeArea(
-            child: ChangeNotifierProvider<AuthFormProvider>(
-              create: (_) => AuthFormProvider(),
+            child: ChangeNotifierProvider<AuthProvider>(
+              create: (_) => AuthProvider(),
               child: SizedBox.expand(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -43,6 +43,9 @@ class NewUserPage extends StatelessWidget {
                       ///---------------------------
                       const NewUserForm(),
       
+                      ///---------------------------
+                      /// SPACING
+                      ///---------------------------
                       const Spacer(),
       
                       ///---------------------------
@@ -55,6 +58,9 @@ class NewUserPage extends StatelessWidget {
                         },
                       ),
       
+                      //---------------------------
+                      /// SPACING
+                      ///---------------------------
                       const SizedBox(height: 20.0),
                     ],
                   ),

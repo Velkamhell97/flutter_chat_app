@@ -8,8 +8,8 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:io';
 
 import '../../global/constants.dart';
-import '../../providers/chat_message_provider.dart';
-import '../../services/services.dart';
+import '../../providers/message_provider.dart';
+import '../../services/messages_service.dart';
 import '../../widgets/chat/chat.dart';
 
 class FileEditionPage extends StatefulWidget {
@@ -84,7 +84,7 @@ class _FileEditionPageState extends State<FileEditionPage> {
       debugPrint('File dont have duration property');
     } 
 
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
 
     chat.message["file"] = filename;
     chat.message["duration"] = duration;
@@ -220,8 +220,14 @@ class __FileThumbnailState extends State<_FileThumbnail> with AutomaticKeepAlive
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          ///---------------------------------
+          /// SPACING
+          ///---------------------------------
           SizedBox(height: mq.padding.top),
 
+          ///---------------------------------
+          /// ICON AND TITLE
+          ///---------------------------------
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -240,8 +246,14 @@ class __FileThumbnailState extends State<_FileThumbnail> with AutomaticKeepAlive
             ],
           ),
 
+          ///---------------------------------
+          /// SPACING
+          ///---------------------------------
           const SizedBox(height: 15.0),
 
+          ///---------------------------------
+          /// THUMBNAIL
+          ///---------------------------------
           ConstrainedBox(
             constraints: BoxConstraints(
               minHeight: mq.size.height * 0.5, 

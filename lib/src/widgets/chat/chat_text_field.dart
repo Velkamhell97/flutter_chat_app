@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
@@ -10,15 +10,15 @@ import 'dart:async';
 import 'dart:io';
 // import 'package:objectid/objectid.dart';
 
-import '../../global/globals.dart';
-import '../../providers/providers.dart';
-import '../../services/services.dart';
-import '../../extensions/extensions.dart';
 import '../../styles/styles.dart';
+import '../../global/globals.dart';
+import '../../providers/message_provider.dart';
+import '../../services/messages_service.dart';
+import '../../extensions/duration_apis.dart';
 import '../../pages/chat/chat.dart';
 import '../transitions/transitions.dart';
 import '../widgets.dart';
-import 'chat.dart';
+import 'emoji_keyboard.dart';
 
 class ChatTextField extends StatefulWidget {
   const ChatTextField({Key? key}) : super(key: key);
@@ -28,13 +28,13 @@ class ChatTextField extends StatefulWidget {
 }
 
 class _ChatTextFieldState extends State<ChatTextField> {
-  late final ChatMessageProvider _chat;
+  late final MessageProvider _chat;
 
   @override
   void initState() {
     super.initState();
 
-    _chat = Provider.of<ChatMessageProvider>(context, listen: false);
+    _chat = Provider.of<MessageProvider>(context, listen: false);
 
     _chat.controller = TextEditingController();
   }
@@ -46,7 +46,7 @@ class _ChatTextFieldState extends State<ChatTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<ChatMessageProvider, bool>(
+    return Selector<MessageProvider, bool>(
       selector: (_, model) => model.showEmojis,
       /// Como no seteamos un setter con notifyListener al showEmojis, por alguna razon no redibuja 
       /// al cambiar manualemnte el valor y luego notificar, por eso con esto le decimos que siempre
@@ -75,6 +75,7 @@ class _MediaActions extends StatefulWidget {
 }
 
 class __MediaActionsState extends State<_MediaActions> with SingleTickerProviderStateMixin {
+  /// Procurar no utilizar procesos en el build si se tiene un ticker
   late final AnimationController _cancelController;
   late Size _size;
 
@@ -145,7 +146,7 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
       _timer?.cancel();
 
       _recorder.stop().then((path) {
-        final chat = context.read<ChatMessageProvider>();
+        final chat = context.read<MessageProvider>();
 
         chat.message["audio"] = path!.split('/').last;
         chat.message["duration"] = milliseconds;
@@ -162,7 +163,7 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
       alignment: Alignment.centerLeft,
       children: [
         ///-----------------------------------
-        /// MEDIA AND RECORD BUTTONS
+        /// SWIPE AND MEDIA-RECORD BUTTONS
         ///-----------------------------------
         AnimatedBuilder(
           animation: _cancelController,
@@ -172,6 +173,9 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
           },
           child: Row(
             children: [
+              ///-----------------------------------
+              /// SWIPE TO CANCEL
+              ///-----------------------------------
               Expanded(
                 /// Podria utilizar un AnimatedOpacity pero tendria que ir con un IgnorePointer
                 child: AnimatedSwitcher(
@@ -191,6 +195,9 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
                 ),
               ),
           
+              ///-----------------------------------
+              /// MEDIA AND RECORD BUTTONS
+              ///-----------------------------------
               _MediaAndRecordButton(
                 recording: _recording,
                 onRecordStart: _record,
@@ -201,6 +208,9 @@ class __MediaActionsState extends State<_MediaActions> with SingleTickerProvider
           ),
         ),
 
+        ///-----------------------------------
+        /// RECORDING TIME
+        ///-----------------------------------
         AnimatedSwitcher(
           duration: kThemeAnimationDuration,
           child: !_recording 
@@ -315,19 +325,19 @@ class __MediaAndRecordButtonState extends State<_MediaAndRecordButton> with Sing
   }
 
   void _onSend() {
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
     context.read<MessagesService>().sendMessage(chat.message);
     chat.clearMessage();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ChatMessageProvider>(
+    return Consumer<MessageProvider>(
       builder: (context, chat, __) {
         return Row(
           children: [
             ///----------------------------
-            /// MEDIA BUTTON
+            /// MEDIA BUTTON (OVERLAY MENU)
             ///----------------------------
             TweenAnimationBuilder<double>( ///Tambien se pudo hacer con el animatedSwitcher
               tween: Tween(begin: 0.0, end: widget.recording || !chat.showSend ? 1.0 : 0.0),
@@ -389,12 +399,18 @@ class __MediaAndRecordButtonState extends State<_MediaAndRecordButton> with Sing
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
+                      ///-----------------------------------
+                      /// BUTTON BACKGROUND
+                      ///-----------------------------------
                       CustomPaint(
                         painter: RecordBackgroundPainter(
                           animation: _recordController
                         )
                       ),
         
+                      ///-----------------------------------
+                      /// RECORD BUTTON
+                      ///-----------------------------------
                       AnimatedScale(
                         duration: kThemeAnimationDuration,
                         scale: widget.recording ? 1.5 : 1.0,
@@ -417,6 +433,7 @@ class __MediaAndRecordButtonState extends State<_MediaAndRecordButton> with Sing
   }
 }
 
+/// Podria ser un StalessWidget, no se sabe que tanto afecte
 class _MediaButtons extends StatefulWidget {
   final Animation<double> animation;
 
@@ -427,9 +444,8 @@ class _MediaButtons extends StatefulWidget {
 }
 
 class __MediaButtonsState extends State<_MediaButtons> {
-
   Future<void> _navigate(PageRoute route) async {
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
 
     chat.overlayType = OverlayType.normal;
     chat.showOverlay = false;
@@ -460,7 +476,7 @@ class __MediaButtonsState extends State<_MediaButtons> {
   }
 
   Future<void> _onFiles() async {
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
 
     final result = await FilePicker.platform.pickFiles();
 
@@ -495,7 +511,9 @@ class __MediaButtonsState extends State<_MediaButtons> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // CircleAvatar(),
+                ///-----------------------------------
+                /// MEDIA BUTTON
+                ///-----------------------------------
                 _MediaIcon(
                   color: Colors.indigo,
                   icon: Icons.camera,
@@ -504,6 +522,9 @@ class __MediaButtonsState extends State<_MediaButtons> {
                   onPress: _onCamera,
                 ),
     
+                ///-----------------------------------
+                /// MEDIA BUTTON
+                ///-----------------------------------
                 _MediaIcon(
                   color: Colors.lightBlue,
                   icon: Icons.image,
@@ -512,6 +533,9 @@ class __MediaButtonsState extends State<_MediaButtons> {
                   onPress: _onGallery,
                 ),
     
+                ///-----------------------------------
+                /// MEDIA BUTTON
+                ///-----------------------------------
                 _MediaIcon(
                   color: Colors.purple,
                   icon: Icons.file_copy,
@@ -544,6 +568,7 @@ class _MediaIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// Se podria crear en el contructor, al ser un staless no se se dedibuja muchas veces
     final bounceAnimation = CurvedAnimation(
       parent: animation, 
       curve: const ElasticInOutCurve(0.6)

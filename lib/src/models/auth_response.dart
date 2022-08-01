@@ -14,7 +14,6 @@ class AuthResponse {
   });
    
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
-    // print(json);
     return AuthResponse(
     status: json["status"],
     message: json["message"],

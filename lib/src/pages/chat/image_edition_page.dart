@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -9,13 +9,11 @@ import 'dart:io';
 import 'dart:ui';
 
 import '../../global/globals.dart';
-import '../../services/services.dart';
-import '../../models/models.dart';
-import '../../providers/providers.dart';
+import '../../providers/message_provider.dart';
+import '../../services/messages_service.dart';
+import '../../models/app_enums.dart';
 import '../../widgets/chat/chat.dart';
 import 'chat.dart';
-
-
 
 class ImageEditionPage extends StatefulWidget {
   final Uint8List bytes;
@@ -192,7 +190,7 @@ class _ImageEditionPageState extends State<ImageEditionPage> {
       File(path).writeAsBytesSync(_data!);
     }
 
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
     
     chat.message["image"] = filename;
 
@@ -207,7 +205,7 @@ class _ImageEditionPageState extends State<ImageEditionPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        final chat = context.read<ChatMessageProvider>();
+        final chat = context.read<MessageProvider>();
 
         if(chat.showEmojis) {
           chat.showEmojis = false;
@@ -243,29 +241,25 @@ class _ImageEditionPageState extends State<ImageEditionPage> {
             ),
               
             ///---------------------------------------
-            /// OPTIONS
+            /// HEADER
             ///---------------------------------------
-            
-            Column(
-              children: [
-                AnimatedSlide(
-                  offset: Offset(0.0, _showOptions ? 0.0 : -1.0),
-                  duration: _hideDuration,
-                  child: Hero(
-                    tag: 'header',
-                    child: MediaEditionHeader(
-                      title: 'Edit Image',
-                      onCrop: () => _onEditionAction(EditionType.crop),
-                      onPaint: () => _onEditionAction(EditionType.paint),
-                      onEmoji: () => _onEditionAction(EditionType.emoji),
-                    ),
-                  ),
+            AnimatedSlide(
+              offset: Offset(0.0, _showOptions ? 0.0 : -1.0),
+              duration: _hideDuration,
+              child: Hero(
+                tag: 'header',
+                child: MediaEditionHeader(
+                  title: 'Edit Image',
+                  onCrop: () => _onEditionAction(EditionType.crop),
+                  onPaint: () => _onEditionAction(EditionType.paint),
+                  onEmoji: () => _onEditionAction(EditionType.emoji),
                 ),
-              
-                
-              ],
+              ),
             ),
 
+            ///---------------------------------------
+            /// FOOTER
+            ///---------------------------------------
             Positioned.fill(
               top: null,
               child: AnimatedSlide(
@@ -273,11 +267,6 @@ class _ImageEditionPageState extends State<ImageEditionPage> {
                 duration: _hideDuration,
                 child: Hero(
                   tag: 'footer',
-                  // flightShuttleBuilder: (_, animation, direction, from, to){
-                  //   final child = direction == HeroFlightDirection.push ? from.widget : to.widget;
-
-                  //   return FittedBox(child: child);
-                  // },
                   child: Material(
                     type: MaterialType.transparency,
                     child: MediaEditionFooter(

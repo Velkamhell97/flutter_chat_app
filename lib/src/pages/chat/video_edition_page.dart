@@ -6,8 +6,8 @@ import 'dart:typed_data';
 import 'dart:io';
 
 import '../../global/globals.dart';
-import '../../services/services.dart';
-import '../../providers/providers.dart';
+import '../../providers/message_provider.dart';
+import '../../services/messages_service.dart';
 import '../../widgets/chat/chat.dart';
 
 class VideoEditionPage extends StatefulWidget {
@@ -63,7 +63,7 @@ class _VideoEditionPageState extends State<VideoEditionPage> {
       quality: 100
     );
 
-    final chat = context.read<ChatMessageProvider>();
+    final chat = context.read<MessageProvider>();
 
     chat.message["video"] = filename;
     chat.message["duration"] = _duration.inMilliseconds;
@@ -79,7 +79,7 @@ class _VideoEditionPageState extends State<VideoEditionPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        final chat = context.read<ChatMessageProvider>();
+        final chat = context.read<MessageProvider>();
 
         if(chat.showEmojis) {
           chat.showEmojis = false;
@@ -95,12 +95,18 @@ class _VideoEditionPageState extends State<VideoEditionPage> {
         body: Stack(
           alignment: Alignment.center,
           children: [
+            ///---------------------------------------
+            /// VIDEO
+            ///---------------------------------------
             MediaVideo(
               file: widget.file,
               bytes: widget.bytes,
               asset: widget.asset,
             ),
             
+            ///---------------------------------------
+            /// HEADER & FOOTER
+            ///---------------------------------------
             Column(
               children: [
                 const MediaEditionHeader(

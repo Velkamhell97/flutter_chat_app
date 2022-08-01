@@ -1,10 +1,10 @@
-import 'package:chat_app/src/pages/chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/services.dart';
-import '../../widgets/transitions/transitions.dart';
-import 'auth.dart';
+import '../../widgets/transitions/page_routes.dart';
+import '../../pages/chat/users_page.dart';
+import '../../pages/auth/login_page.dart';
 
 class AuthPage extends StatefulWidget {
   final String? payload;

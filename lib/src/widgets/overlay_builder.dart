@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 typedef AnimatedOverlayBuilder = Widget Function(BuildContext context, Animation<double> animation, Offset offset);
 
+/// Estos enum se definen aqui, porque este es un tipo de widget reutilizable
 enum Anchor {
   leftTop(0.0),
   leftCenter(0.5),

@@ -1,15 +1,14 @@
-import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart' show MediaType;
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:mime/mime.dart';
 import 'package:pdfx/pdfx.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:dio/dio.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:http_parser/http_parser.dart' show MediaType;
 
 import '../global/globals.dart';
-import '../extensions/extensions.dart';
-import '../models/media_response.dart';
-import '../services/services.dart';
+import '../extensions/string_apis.dart';
+import '../services/auth_service.dart';
 import '../models/models.dart' hide MediaType;
 
 const uploadMediaRoute = '/media';
@@ -25,7 +24,6 @@ class FilesService {
   }
 
   final _host = Environment.apiHost;
-
   final _dio = Dio();
 
   ErrorResponse? error;

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../extensions/extensions.dart';
-import '../providers/providers.dart';
-import '../models/models.dart';
-import '../services/services.dart';
 import '../styles/styles.dart';
-import '../widgets/auth/auth.dart';
+import '../extensions/string_apis.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import '../models/app_enums.dart';
+import '../widgets/auth/auth_inputs.dart';
 
 class RegisterForm extends StatelessWidget {
   const RegisterForm({Key? key}) : super(key: key);
 
-  Future<void> _register(BuildContext context, AuthFormProvider form) async {
+  Future<void> _register(BuildContext context, AuthProvider form) async {
     if(form.loading) return;
                   
     FocusScope.of(context).unfocus();
@@ -38,7 +38,7 @@ class RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthFormProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, form, _) {
         return Form(
           key: form.key,
@@ -58,6 +58,9 @@ class RegisterForm extends StatelessWidget {
                 validator: (value) => (value ?? '').isValidEmail ? null : 'Enter a valid email'
               ),
       
+              ///------------------------------------
+              /// Spacing
+              ///------------------------------------
               const SizedBox(height: 20.0),
 
               ///------------------------------------
@@ -80,6 +83,9 @@ class RegisterForm extends StatelessWidget {
                 hint: 'Repeat Password',
               ),
               
+              ///------------------------------------
+              /// Spacing
+              ///------------------------------------
               const SizedBox(height: 20.0),
               
               ///------------------------------------

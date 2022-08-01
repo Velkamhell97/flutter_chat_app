@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/models.dart';
-import '../../providers/providers.dart';
+import '../../models/user.dart';
+import '../../providers/message_provider.dart';
 import '../../pages/chat/chat_page.dart';
-import '../auth/auth.dart';
+import '../auth/user_avatar.dart';
 
 class UserTile extends StatelessWidget {
   final User user;
@@ -26,6 +26,9 @@ class UserTile extends StatelessWidget {
 
     return Stack(
       children: [
+        ///-----------------------------------
+        /// TILE
+        ///-----------------------------------
         ListTile(
           leading: UserAvatar(
             url: user.avatar,
@@ -36,7 +39,7 @@ class UserTile extends StatelessWidget {
           title: Text(user.name ?? 'Any'),
           subtitle: Text(last, style: style),
           onTap: () {
-            context.read<ChatMessageProvider>().clearMessage(user.uid);
+            context.read<MessageProvider>().clearMessage(user.uid);
 
             final route = CupertinoPageRoute(
               builder: (_) => ChatPage(receiver: user)
@@ -50,6 +53,10 @@ class UserTile extends StatelessWidget {
             });
           },
         ),
+
+        ///-----------------------------------
+        /// COUNTER BADGE
+        ///-----------------------------------
         if(unreads != 0)
           Positioned(
             right: 10,

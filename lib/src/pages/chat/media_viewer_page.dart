@@ -5,14 +5,14 @@ import 'dart:io';
 import '../../styles/styles.dart';
 import '../../widgets/chat/chat.dart';
 
-class MediViewerPage extends StatefulWidget {
+class MediaViewerPage extends StatefulWidget {
   final String id;
   final ImageProvider<Object> image;
   final Size? size;
   final File? video;
   final int? duration;
 
-  const MediViewerPage({
+  const MediaViewerPage({
     Key? key,
     required this.id,
     required this.image,
@@ -22,10 +22,10 @@ class MediViewerPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<MediViewerPage> createState() => _MediViewerPageState();
+  State<MediaViewerPage> createState() => _MediaViewerPageState();
 }
 
-class _MediViewerPageState extends State<MediViewerPage> {
+class _MediaViewerPageState extends State<MediaViewerPage> {
   final _positionNotifier = ValueNotifier<Duration>(Duration.zero);
 
   late double _aspectRatio;
@@ -110,6 +110,9 @@ class _MediViewerPageState extends State<MediViewerPage> {
         // fit: StackFit.expand,
         alignment: Alignment.center,
         children: [
+          ///---------------------------------------
+          /// IMAGE O THUMBNAIL
+          ///---------------------------------------
           Center(
             child: Hero(
               tag: widget.id,
@@ -118,6 +121,9 @@ class _MediViewerPageState extends State<MediViewerPage> {
             ),
           ),
 
+          ///---------------------------------------
+          /// VIDEO
+          ///---------------------------------------
           if(_videoController != null)
             GestureDetector(
               onTap: _toggle,
@@ -127,6 +133,9 @@ class _MediViewerPageState extends State<MediViewerPage> {
               )
             ),
 
+          ///---------------------------------------
+          /// VIDEO PLAY BUTTON
+          ///---------------------------------------
           AnimatedOpacity(
             duration: kThemeAnimationDuration,
             opacity: (_playing || widget.video == null) ? 0.0 : 1.0,
@@ -144,6 +153,9 @@ class _MediViewerPageState extends State<MediViewerPage> {
             ),
           ),
 
+          ///---------------------------------------
+          /// HEADER
+          ///---------------------------------------
           const Align(
             alignment: Alignment.topCenter,
             child: MediaEditionHeader(
@@ -151,6 +163,9 @@ class _MediViewerPageState extends State<MediViewerPage> {
             )
           ),
 
+          ///---------------------------------------
+          /// VIDEO SLIDER
+          ///---------------------------------------
           if(widget.video != null)
             Positioned(
               bottom: 20,

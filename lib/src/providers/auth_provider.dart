@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
-import '../singlentons/singlentons.dart';
+import '../singlentons/locales_service.dart';
 
-class AuthFormProvider extends ChangeNotifier {
+class AuthProvider extends ChangeNotifier {
   final key = GlobalKey<FormState>();
   final codeKey = GlobalKey<FormState>();
 
@@ -13,7 +13,7 @@ class AuthFormProvider extends ChangeNotifier {
   bool _mounted = true; /// Evita actualizar la ui luego del dispose del provider
 
   /// Parametros para reutilizar este provider
-  AuthFormProvider({String? email, Map<String, String>? phone}){
+  AuthProvider({String? email, Map<String, String>? phone}){
     body['email'] = email;
 
     /// Alterntaiva al provider.value, al no poder compartir la misma referencia se tienen que pasar

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-import '../global/globals.dart';
+import '../global/enviorement.dart';
 import '../models/models.dart';
 
 class SocketsService  {
@@ -34,8 +33,6 @@ class SocketsService  {
   /// Para no manejar un changeNotifier para una sola variable
   final ValueNotifier<bool> online = ValueNotifier(true);
 
-  static ServerStatus serverStatus = ServerStatus.online;
-
   /// No conectamos automaticamente porque debemos pasar el token de autenticacion
   void connect(String token, { void Function(ErrorResponse error)? onError }){
     if(socket.active) return; /// Si ya esta corriendo  no haga nada
@@ -47,13 +44,11 @@ class SocketsService  {
       socket.on('connect', (_) {
         debugPrint('sockets connected');
         online.value = true;
-        serverStatus = ServerStatus.online;
       });
 
       socket.on('disconnect', (_) {
         debugPrint('sockets disconnected');
         online.value = false;
-        serverStatus = ServerStatus.offline;
       });
 
       /// Por alguna razon no funciona cuando falla un middleware en el server, no se puede lanzar un throw

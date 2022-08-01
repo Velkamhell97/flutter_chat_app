@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
-import '../../singlentons/singlentons.dart';
+import '../../singlentons/sp.dart';
+import '../../providers/message_provider.dart';
 import '../../services/services.dart';
 import '../../models/models.dart';
-import '../../providers/providers.dart';
 import '../../widgets/chat/chat.dart';
 import 'chat.dart';
 
@@ -27,7 +26,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
   late final SocketsService socket;
   late final UsersService users;
   late final DialogsService dialogs;
-  late final ChatMessageProvider chat;
+  late final MessageProvider chat;
 
   AppLifecycleState _appState = AppLifecycleState.resumed;
 
@@ -95,7 +94,7 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
     auth = Provider.of<AuthService>(context, listen: false);
     socket = Provider.of<SocketsService>(context, listen: false);
     users = Provider.of<UsersService>(context, listen: false);
-    chat = Provider.of<ChatMessageProvider>(context, listen: false);
+    chat = Provider.of<MessageProvider>(context, listen: false);
     dialogs = Provider.of<DialogsService>(context, listen: false);
   }
 
@@ -194,13 +193,13 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      //----------------------------
-      // AppBar
-      //----------------------------
+      ///----------------------------
+      /// AppBar
+      ///----------------------------
       appBar: AppBar(
         backgroundColor: const Color(0xff4c84b6),
         foregroundColor: Colors.white,
-        systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+        // systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
         title: Text(_user?.name ?? 'User'),
         leading: ValueListenableBuilder<bool>(
           valueListenable: socket.online,
@@ -212,9 +211,9 @@ class _UsersPageState extends State<UsersPage> with WidgetsBindingObserver {
         actions: [IconButton(onPressed: _logout, icon: const Icon(Icons.exit_to_app))],
       ),
 
-      //----------------------------
-      // Users List
-      //----------------------------
+      ///----------------------------
+      /// Users List
+      ///----------------------------
       body: StreamBuilder<List<User>>(
         initialData: null,
         stream: users.usersStream,

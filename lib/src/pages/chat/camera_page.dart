@@ -5,9 +5,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 import 'dart:io';
 
-import '../../models/models.dart';
+import '../../extensions/duration_apis.dart';
+import '../../models/app_enums.dart';
 import '../../widgets/painters.dart';
-import '../../extensions/extensions.dart';
 import '../../widgets/transitions/transitions.dart';
 import 'chat.dart';
 
@@ -20,7 +20,7 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   CameraController? _controller;
 
   Offset? focusPoint;
@@ -397,8 +397,10 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver, Ti
 
   @override
   Widget build(BuildContext context) {
+    /// Recomendado por el example
     final cameraController = _controller;
 
+    /// Podria colocarse en el didChangeDependencies
     final Size size = MediaQuery.of(context).size;
 
     double scale = 1.0;
@@ -478,6 +480,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver, Ti
                   onExposureChanged: _onSetExposureOffset,
                 ),
       
+                ///----------------------------------
+                /// SPACING
+                ///----------------------------------
                 const SizedBox(height: 20.0),
       
                 ///----------------------------------
@@ -490,6 +495,9 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver, Ti
                   zoomNotifier: _zoomNotifier
                 ),
       
+                ///----------------------------------
+                /// SPACING
+                ///----------------------------------
                 const SizedBox(height: 10.0),
       
                 ///----------------------------------
@@ -733,7 +741,7 @@ class _CameraButtons extends StatefulWidget {
   State<_CameraButtons> createState() => __CameraButtonsState();
 }
 
-class __CameraButtonsState extends State<_CameraButtons> with TickerProviderStateMixin {
+class __CameraButtonsState extends State<_CameraButtons> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   bool _tapped = false;

@@ -1,8 +1,7 @@
-import 'dart:typed_data';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:crop_image/crop_image.dart';
+import 'dart:typed_data';
+import 'dart:ui';
 
 class ImageCropPage extends StatefulWidget {
   final ValueNotifier<ImageProvider> imageNotifier;
@@ -83,6 +82,7 @@ class _ImageCropPageState extends State<ImageCropPage> {
 
   @override
   Widget build(BuildContext context) {
+    /// Se podria pasar la logica a el didChangeDependencies
     final Size size = MediaQuery.of(context).size;
 
     final height = _imageSize.height * _controller.crop.height;
