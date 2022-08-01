@@ -53,9 +53,19 @@ class UsersService {
   }
 
   void connect(String id) {
-    final user = users.firstWhere((element) => element.uid == id);
-    user.online = true;
-    _usersStreamController.add(users);
+    bool newUser = false;
+
+    final user = users.firstWhere((element) => element.uid == id, orElse: () {
+      newUser = true;
+      return users[0];
+    });
+
+    if(newUser){
+      getUsers();
+    } else {
+      user.online = true;
+      _usersStreamController.add(users);
+    }
   }
 
   void disconnect(String id) {

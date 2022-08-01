@@ -243,16 +243,19 @@ class _ImageEditionPageState extends State<ImageEditionPage> {
             ///---------------------------------------
             /// HEADER
             ///---------------------------------------
-            AnimatedSlide(
-              offset: Offset(0.0, _showOptions ? 0.0 : -1.0),
-              duration: _hideDuration,
-              child: Hero(
-                tag: 'header',
-                child: MediaEditionHeader(
-                  title: 'Edit Image',
-                  onCrop: () => _onEditionAction(EditionType.crop),
-                  onPaint: () => _onEditionAction(EditionType.paint),
-                  onEmoji: () => _onEditionAction(EditionType.emoji),
+            Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlide(
+                offset: Offset(0.0, _showOptions ? 0.0 : -1.0),
+                duration: _hideDuration,
+                child: Hero(
+                  tag: 'header',
+                  child: MediaEditionHeader(
+                    title: 'Edit Image',
+                    onCrop: () => _onEditionAction(EditionType.crop),
+                    onPaint: () => _onEditionAction(EditionType.paint),
+                    onEmoji: () => _onEditionAction(EditionType.emoji),
+                  ),
                 ),
               ),
             ),

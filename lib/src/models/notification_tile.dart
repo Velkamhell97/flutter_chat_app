@@ -15,7 +15,7 @@ class NotificationTile {
 
   factory NotificationTile.fromJson(Map<String, dynamic> json) {
     return NotificationTile(
-      uid    : json["uid"], 
+      uid    : json["_id"], 
       name   : json["name"], 
       avatar : json["avatar"],
       last4  : List<String>.from(json["last4"]),
