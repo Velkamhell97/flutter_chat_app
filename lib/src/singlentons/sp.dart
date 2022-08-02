@@ -22,6 +22,9 @@ class SP {
 
   String get fcmToken => _prefs.getString('fcmToken') ?? '';
   set fcmToken(String value) => _prefs.setString('fcmToken', value);
+
+  double get keyboardHeight => _prefs.getDouble('keyboardHeight') ?? 0.0;
+  set keyboardHeight(double value) => _prefs.setDouble('keyboardHeight', value);
   
   ///Para mostrar notificaciones o no si esta auth o no (no utilizado)
   bool get loged => _prefs.getBool('loged') ?? false;

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter_persistent_keyboard_height/flutter_persistent_keyboard_height.dart';
+
+import '../../singlentons/singlentons.dart';
 
 class EmojiKeyboard extends StatefulWidget {
   final Widget? child;
@@ -39,9 +41,10 @@ class EmojiKeyboard extends StatefulWidget {
 
 class _EmojiKeyboardState extends State<EmojiKeyboard> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
-
   late final TextEditingController _textEditingController;
   late final FocusNode _focusNode;
+
+  final _sp = SP();
 
   static const _platform = MethodChannel('com.example.chat_app/channel');
   static const _duration = Duration(milliseconds: 180);
@@ -49,10 +52,13 @@ class _EmojiKeyboardState extends State<EmojiKeyboard> with SingleTickerProvider
   bool _keyboardOpen = false;
   bool _emojisOpen = false;
 
+  /// Necesitamos un height inicial, por si la libreria no me arroja nada las primeras veces, este valor incial
+  /// lo guardamos en el input donde se almacena el nombre y lo utilizamos aqui
+  late double _initialHeight;
   /// Cuando hay cambios en el height del keyboard, se anima el AnimatedContainer y el SizeTransition
   /// al tiempo, por lo que la transicion no se muestra correcta, para evitar esto tomamos el height inicial
   /// y si se presentan cambios en este solo animamos el AnimatedContainer
-  double _keyboardHeight = 0.0;
+  late double _keyboardHeight;
 
   @override
   void initState() {
@@ -62,6 +68,9 @@ class _EmojiKeyboardState extends State<EmojiKeyboard> with SingleTickerProvider
       vsync: this,
       duration: _duration
     );
+
+    _initialHeight = _sp.keyboardHeight;
+    _keyboardHeight = _initialHeight;
 
     _animationController.addStatusListener((status) {
       if(status == AnimationStatus.forward){
@@ -153,7 +162,10 @@ class _EmojiKeyboardState extends State<EmojiKeyboard> with SingleTickerProvider
   
   @override
   Widget build(BuildContext context) {
-    _keyboardHeight = PersistentKeyboardHeight.of(context).keyboardHeight;
+    /// Si da un valor de 0 quiere decir que no ha detectado el height y utilizamos el inicial, caso contrario
+    /// establecemos el valor que devuelva la libreria ya sea mayor que el initial o menor
+    final currentHeight = PersistentKeyboardHeight.of(context).keyboardHeight;
+    _keyboardHeight = currentHeight == 0.0 ? _initialHeight : currentHeight;
 
     return Column(
       children: [

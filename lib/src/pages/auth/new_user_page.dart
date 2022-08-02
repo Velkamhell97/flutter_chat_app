@@ -5,9 +5,30 @@ import '../../providers/auth_provider.dart';
 import '../../services/auth_service.dart';
 import '../../forms/new_user_form.dart';
 import '../../widgets/auth/auth.dart';
+import '../../singlentons/singlentons.dart';
 
-class NewUserPage extends StatelessWidget {
+class NewUserPage extends StatefulWidget {
   const NewUserPage({Key? key}) : super(key: key);
+
+  @override
+  State<NewUserPage> createState() => _NewUserPageState();
+}
+
+class _NewUserPageState extends State<NewUserPage> {
+  final _sp = SP();
+
+  @override
+  void didChangeDependencies() {
+    /// Esta pantalla es el unico input obligatorio por el que tiene que pasar con cualquier tipo de registro
+    /// aqui guardamos el height del keyboard inicial, porque hay veces la libreria no detecta los primeros cambios
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    if(bottomInset != 0.0){
+      _sp.keyboardHeight = bottomInset;
+    }
+
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
